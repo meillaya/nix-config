@@ -379,8 +379,8 @@ in
       enable = true;
     };
     signing = {
-      format = "openpgp";
-      key = "15E95E5E02E51FBDA521A8FE134771C79E4A74F2";
+      format = "ssh";
+      key = "~/.ssh/git_signing_ed25519.pub";
     };
     settings = {
       user = {
@@ -393,6 +393,7 @@ in
         autocrlf = "input";
       };
       commit.gpgsign = true;
+      gpg."ssh".allowedSignersFile = "~/.ssh/allowed_signers";
       pull.rebase = true;
       rebase.autoStash = true;
       credential = {
