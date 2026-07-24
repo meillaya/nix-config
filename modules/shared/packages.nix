@@ -5,6 +5,7 @@ with pkgs;
   # General packages for development and system management
   ast-grep
   aria2
+  secretspec
   bash-completion
   bat
   bear
@@ -56,6 +57,7 @@ with pkgs;
   ncdu
   ranger
   ripgrep
+  ruff
   superfile
   tectonic
   tldr
@@ -73,8 +75,13 @@ with pkgs;
   curl
   devenv
   gh
+  git-filter-repo
+  act
+  actionlint
   terraform
   kubectl
+  kind
+  kubernetes-helm
   awscli2
   claude-code
   codex
@@ -90,6 +97,7 @@ with pkgs;
   fzf
   direnv
   flyctl
+  railway
   podman
   vagrant
   zed-editor

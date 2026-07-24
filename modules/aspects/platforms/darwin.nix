@@ -4,6 +4,7 @@
     den.aspects.shared-policy
     den.aspects.darwin-base
     den.aspects.secrets
+    den.aspects.sops
     den.aspects.darwin-home
   ];
 }

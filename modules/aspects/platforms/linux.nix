@@ -4,6 +4,7 @@
     den.aspects.shared-policy
     den.aspects.nixos-base
     den.aspects.secrets
+    den.aspects.sops
     den.aspects.desktop-media
   ];
 }
