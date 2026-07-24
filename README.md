@@ -161,11 +161,62 @@ For the repo-specific WSL notes, including the Determinate-only requirement veri
 
 ## Secrets
 
+This repo adopts three secret-management tools, each for a different layer.
+They are additive — pick the one that matches the use case.
+
+### When to use which
+
+- **agenix** — NixOS activation-time file delivery. Use for system services
+  that read a file path (e.g. `services.foo.environmentFile =
+  config.age.secrets."foo-env".path`). The aspect at
+  `modules/aspects/features/secrets.nix` is wired into both Darwin and Linux
+  platforms and ships the `agen` / `agenix` CLI on every host.
+- **sops-nix** — shared/structured secrets (YAML, JSON, ENV, INI). Use when
+  a single SOPS file lists multiple secrets for a host, or when the
+  recipient policy should be path-based. The aspect at
+  `modules/aspects/features/sops.nix` is wired into both Darwin and Linux
+  platforms and ships the `sops` CLI on NixOS and Darwin hosts. The
+  standalone Linux Home Manager configuration adds `sops` directly to its
+  package list (`modules/standalone-linux/packages.nix`) because the
+  standalone home does not include `linux-platform`.
+- **secretspec** — typed app-SDK consumers. Use when a new application
+  imports the Rust / Python / Go / Node SDK and wants compile-time
+  guarantees about which secrets it requires. The `secretspec` CLI is
+  shipped via `modules/shared/packages.nix`. A template manifest lives at
+  `secretspec/secretspec.toml`.
+
+### Recipient / policy files
+
+- **agenix** recipient lists live in `secrets.nix` (per the
+  `agenix` upstream convention; this repo has none committed yet).
+- **sops-nix** creation rules would live at the repo root in `.sops.yaml`
+  (this repo has none committed yet; not yet created).
+- **secretspec** provider aliases and profiles live in
+  `secretspec/secretspec.toml` (a template is committed; the actual
+  production profiles are operator-local).
+
+### Current state
+
+- agenix, sops-nix, and secretspec are all installed and wired.
+- **No first secret is enrolled.** Every declared machine in
+  `modules/entities/_machine-authority/model.nix` carries
+  `publicTrust.state = "disabled"; secretTrust.state = "disabled";`.
+- The `validators.nix:498-501` cross-field rule requires
+  `boot.state = "uefi"` + `storage.profile = "single-gpt-btrfs"` +
+  `publicTrust.state = "enrolled"` before any
+  `secretTrust.state = "enrolled"` may be set. That capability work is
+  outside the scope of this repo's current machine authority.
+- When you are ready to add the first real secret, follow the
+  `agenix` / `sops-nix` / `secretspec` upstream docs and edit
+  `modules/entities/_machine-authority/model.nix` accordingly.
+
+### Local staging boundary
+
 The ignored local `secrets/` directory is an out-of-store staging boundary.
-Home Manager does not ingest or manage the synced plaintext Kavita or Calibre
-files and does not create `home.file.source` links for them. After syncing,
-install only the files an application needs as a manual runtime workflow
-outside Nix evaluation, for example:
+Home Manager does not ingest or manage the synced plaintext Kavita or
+Calibre files and does not create `home.file.source` links for them. After
+syncing, install only the files an application needs as a manual runtime
+workflow outside Nix evaluation, for example:
 
 ```bash
 install -d -m 0700 "$HOME/Documents/Kavita/config" "$HOME/.config/calibre"
@@ -175,9 +226,11 @@ install -m 0600 secrets/calibre/{global.py.json,gui.py.json,customize.py.json} \
   "$HOME/.config/calibre/"
 ```
 
-These commands are a manual runtime workflow, not a Home Manager activation or
-proof that provider credentials were rotated.
+These commands are a manual runtime workflow, not a Home Manager
+activation or proof that provider credentials were rotated.
 
-Only encrypted material intended for `agenix` may be referenced by
-`modules/*/secrets.nix`; do not add ignored plaintext application state to a
-flake source or Nix path.
+Only encrypted material intended for `agenix` or `sops-nix` may be
+referenced by `modules/*/secrets.nix`; do not add ignored plaintext
+application state to a flake source or Nix path. SecretSpec-managed
+secrets are read at runtime by the application; they do not pass
+through the Nix store.
