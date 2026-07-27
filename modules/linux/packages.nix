@@ -65,8 +65,10 @@ with pkgs;
   wireshark
   yaak
   zathura
+  sublime4
 ]
 ++ lib.optionals (stdenv.hostPlatform.system == "x86_64-linux") [
   hoppscotch
   obsidian
+  (pkgs.callPackage ../../pkgs/elecwhat-bin.nix { })
 ]
