@@ -44,6 +44,7 @@ with pkgs;
   gimp
   ghostty
   halloy
+  hydralauncher
   imhex
   incus
   kicad
@@ -61,6 +62,7 @@ with pkgs;
   remmina
   tailscale
   virt-manager
+  vesktop
   vlc
   wireshark
   yaak

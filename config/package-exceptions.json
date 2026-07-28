@@ -352,6 +352,39 @@
       "reviewedAt": "2026-07-24",
       "system": "aarch64-linux",
       "version": "4200"
+    },
+    {
+      "expiresAt": "2026-10-25",
+      "maxTtlDays": 90,
+      "output": "nixosConfigurations.x86_64-linux",
+      "owner": "mei",
+      "pname": "opencode-omo",
+      "reason": "requested-coding-agent-harness",
+      "reviewedAt": "2026-07-27",
+      "system": "x86_64-linux",
+      "version": "4.19.2"
+    },
+    {
+      "expiresAt": "2026-10-25",
+      "maxTtlDays": 90,
+      "output": "nixosConfigurations.aarch64-linux",
+      "owner": "mei",
+      "pname": "opencode-omo",
+      "reason": "requested-coding-agent-harness",
+      "reviewedAt": "2026-07-27",
+      "system": "aarch64-linux",
+      "version": "4.19.2"
+    },
+    {
+      "expiresAt": "2026-10-25",
+      "maxTtlDays": 90,
+      "output": "darwinConfigurations.aarch64-darwin",
+      "owner": "mei",
+      "pname": "opencode-omo",
+      "reason": "requested-coding-agent-harness",
+      "reviewedAt": "2026-07-27",
+      "system": "aarch64-darwin",
+      "version": "4.19.2"
     }
   ]
 }

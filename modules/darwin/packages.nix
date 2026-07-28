@@ -20,6 +20,7 @@ shared-packages ++ [
   micro
   neovim
   omniorb
+  (pkgs.callPackage ../../pkgs/omniwm.nix { })
   jetbrains.pycharm
   uv
 ]

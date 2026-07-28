@@ -84,12 +84,10 @@ with pkgs;
   kubernetes-helm
   awscli2
   claude-code
-  codex
+  (pkgs.callPackage ../../pkgs/codex-omx.nix { })
 ]
-++ pkgs.lib.optionals (
-  includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin"
-) [
-  opencode
+++ pkgs.lib.optionals (includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin") [
+  (pkgs.callPackage ../../pkgs/opencode-omo.nix { })
 ]
 ++ [
   lazygit
