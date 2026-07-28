@@ -486,7 +486,14 @@ let
         && machine.gpu == "apple-metal"
         && machine.network == "native-darwin"
         && machine.platformExpectations.kind == "darwin"
-        && operationallyDisabled machine
+        && machine.publicTrust.state == "disabled"
+        && (machine.secretTrust.state == "disabled" || machine.secretTrust.state == "enrolled")
+        && machine.boot.state == "disabled"
+        && machine.storage.profile == "none"
+        && machine.devices.state == "disabled"
+        && machine.capabilities.state == "disabled"
+        && machine.ddcConnectors == [ ]
+        && machine.remoteInstall == false
       else if isPendingX86 then
         machine.firmware == "disabled"
         && machine.kernel == "disabled"

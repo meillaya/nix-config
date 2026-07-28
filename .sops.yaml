@@ -1,0 +1,7 @@
+keys:
+  - &admin age1xxj3ft4g9gkfryedx85z9je76s07xxfqcvzl4c3t777d45hfgpvqwkpclc
+creation_rules:
+  - path_regex: secrets/coding-agents\.yaml$
+    key_groups:
+      - age:
+          - *admin

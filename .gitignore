@@ -8,3 +8,4 @@ __pycache__/
 *.py[cod]
 secrets/*
 !secrets/README.md
+!secrets/coding-agents.yaml
