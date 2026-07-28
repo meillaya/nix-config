@@ -15,7 +15,14 @@ in
     enableNixpkgsReleaseCheck = false;
     username = lib.mkDefault userName;
     homeDirectory = lib.mkDefault homeDirectory;
-    packages = import ./packages.nix { inherit pkgs inputs; };
+    packages = (import ./packages.nix { inherit pkgs inputs; }) ++ [
+      ((pkgs.writeShellScriptBin "codex-wrapped" ''
+        set -euo pipefail
+        export SOPS_AGE_KEY_FILE="${config.home.homeDirectory}/.config/sops/age/keys.txt"
+        SECRETS_FILE="${config.home.homeDirectory}/nix-config/secrets/coding-agents.yaml"
+        exec sops exec-env "$SECRETS_FILE" -- codex "$@"
+      '') // { pname = "codex-wrapped"; })
+    ];
     file = standalone-files;
     sessionVariables = {
       BROWSER = "zen-beta";
@@ -25,9 +32,6 @@ in
     };
     sessionPath = [
       "${config.home.homeDirectory}/.local/bin"
-      "${config.home.homeDirectory}/.ghcup/bin"
-      "${config.home.homeDirectory}/.cabal/bin"
-      "${config.home.homeDirectory}/.spicetify"
     ];
     stateVersion = "25.11";
   };

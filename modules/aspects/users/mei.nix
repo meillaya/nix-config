@@ -48,6 +48,20 @@ in
     ];
 
     homeManager = { config, pkgs, lib, ... }: {
+      home.packages = [
+        ((pkgs.writeShellScriptBin "codex-wrapped" ''
+          set -euo pipefail
+          export SOPS_AGE_KEY_FILE="${config.home.homeDirectory}/.config/sops/age/keys.txt"
+          SECRETS_FILE="${config.home.homeDirectory}/nix-config/secrets/coding-agents.yaml"
+          exec sops exec-env "$SECRETS_FILE" -- codex "$@"
+        '') // { pname = "codex-wrapped"; })
+        ((pkgs.writeShellScriptBin "opencode-wrapped" ''
+          set -euo pipefail
+          export SOPS_AGE_KEY_FILE="${config.home.homeDirectory}/.config/sops/age/keys.txt"
+          SECRETS_FILE="${config.home.homeDirectory}/nix-config/secrets/coding-agents.yaml"
+          exec sops exec-env "$SECRETS_FILE" -- opencode "$@"
+        '') // { pname = "opencode-wrapped"; })
+      ];
       gtk.gtk4.theme = config.gtk.theme;
       home.file = import ../../shared/files.nix { inherit config pkgs lib; };
       programs = (import ../../shared/home-manager.nix { inherit config pkgs lib; }) // {
