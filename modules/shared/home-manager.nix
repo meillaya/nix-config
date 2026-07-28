@@ -72,7 +72,6 @@ in
       export PATH=$HOME/.pnpm-packages/bin:$HOME/.pnpm-packages:$PATH
       export PATH=$HOME/.npm-packages/bin:$HOME/bin:$PATH
       export PATH=$HOME/.local/bin:$PATH
-      export PATH=$HOME/.local/share/bin:$PATH
       export PATH=$HOME/.kimi-code/bin:$PATH
 
       export ALTERNATE_EDITOR=""
@@ -169,10 +168,7 @@ in
       fish_add_path --prepend $HOME/.pnpm-packages/bin $HOME/.pnpm-packages
       fish_add_path --prepend $HOME/.npm-packages/bin $HOME/bin
       fish_add_path --prepend $HOME/.local/bin
-      fish_add_path --prepend $HOME/.local/share/bin
       fish_add_path --prepend $HOME/.kimi-code/bin
-      fish_add_path --prepend $HOME/.cabal/bin $HOME/.ghcup/bin
-      fish_add_path --prepend $HOME/.spicetify
 
       test -r "$HOME/.opam/opam-init/init.fish" && source "$HOME/.opam/opam-init/init.fish" > /dev/null 2> /dev/null; or true
 
@@ -288,7 +284,6 @@ in
         export PATH=$HOME/.pnpm-packages/bin:$HOME/.pnpm-packages:$PATH
         export PATH=$HOME/.npm-packages/bin:$HOME/bin:$PATH
         export PATH=$HOME/.local/bin:$PATH
-        export PATH=$HOME/.local/share/bin:$PATH
         export PATH=$HOME/.kimi-code/bin:$PATH
 
         [[ -f "$HOME/.local/bin/env" ]] && . "$HOME/.local/bin/env"
@@ -381,6 +376,7 @@ in
     signing = {
       format = "ssh";
       key = "~/.ssh/git_signing_ed25519.pub";
+      signByDefault = true;
     };
     settings = {
       user = {
@@ -392,7 +388,6 @@ in
         editor = "vim";
         autocrlf = "input";
       };
-      commit.gpgsign = true;
       gpg."ssh".allowedSignersFile = "~/.ssh/allowed_signers";
       pull.rebase = true;
       rebase.autoStash = true;
