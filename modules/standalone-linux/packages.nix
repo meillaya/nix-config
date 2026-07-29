@@ -4,6 +4,7 @@ let
   shared-packages = import ../shared/packages.nix {
     inherit pkgs;
     includeOpencode = false;
+    includeCodingAgentDerivations = false;
   };
   linux-packages = import ../linux/packages.nix {
     inherit pkgs;

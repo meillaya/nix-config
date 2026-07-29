@@ -1,11 +1,51 @@
-{ pkgs, user, ... }:
+{ pkgs, lib, user, ... }:
 {
   home = {
     enableNixpkgsReleaseCheck = false;
     username = user.identity.name;
     homeDirectory = user.identity.home;
-    packages = pkgs.callPackage ./packages.nix { };
+    packages = (pkgs.callPackage ./packages.nix { }) ++ [
+      pkgs.nodejs
+      ((pkgs.writeShellScriptBin "pi-wrapped" ''
+        set -euo pipefail
+        export SOPS_AGE_KEY_FILE="${user.identity.home}/.config/sops/age/keys.txt"
+        SECRETS_FILE="${user.identity.home}/nix-config/secrets/coding-agents.yaml"
+        exec sops exec-env "$SECRETS_FILE" -- pi "$@"
+      '') // { pname = "pi-wrapped"; })
+      ((pkgs.writeShellScriptBin "hermes-wrapped" ''
+        set -euo pipefail
+        export SOPS_AGE_KEY_FILE="${user.identity.home}/.config/sops/age/keys.txt"
+        SECRETS_FILE="${user.identity.home}/nix-config/secrets/coding-agents.yaml"
+        exec sops exec-env "$SECRETS_FILE" -- hermes "$@"
+      '') // { pname = "hermes-wrapped"; })
+      ((pkgs.writeShellScriptBin "zeroclaw-wrapped" ''
+        set -euo pipefail
+        export SOPS_AGE_KEY_FILE="${user.identity.home}/.config/sops/age/keys.txt"
+        SECRETS_FILE="${user.identity.home}/nix-config/secrets/coding-agents.yaml"
+        exec sops exec-env "$SECRETS_FILE" -- zeroclaw "$@"
+      '') // { pname = "zeroclaw-wrapped"; })
+    ];
     stateVersion = "23.11";
+    activation.installCodingAgents = let
+      npm = "${pkgs.nodejs}/bin/npm";
+      curl = "${pkgs.curl}/bin/curl";
+      bash = "${pkgs.bash}/bin/bash";
+    in lib.hm.dag.entryAfter ["writeBoundary"] ''
+      install_if_missing() {
+        local name="$1" cmd="$2"
+        if ! command -v "$name" &>/dev/null; then
+          echo "install-coding-agents: installing $name..."
+          eval "$cmd"
+        fi
+      }
+      install_if_missing codex "${npm} install -g @openai/codex"
+      install_if_missing omx "${npm} install -g oh-my-codex"
+      install_if_missing omo "${npm} install -g oh-my-opencode"
+      install_if_missing opencode "${curl} -fsSL https://opencode.ai/install | ${bash}"
+      install_if_missing pi "${curl} -fsSL https://pi.dev/install.sh | ${bash}"
+      install_if_missing hermes "${curl} -fsSL https://hermes-agent.nousresearch.com/install.sh | ${bash}"
+      install_if_missing zeroclaw "${curl} -fsSL https://zeroclawlabs.ai/install.sh | ${bash}"
+    '';
   };
 
   manual.manpages.enable = false;

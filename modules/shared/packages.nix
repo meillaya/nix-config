@@ -1,4 +1,4 @@
-{ pkgs, includeDocker ? true, includeOpencode ? true }:
+{ pkgs, includeDocker ? true, includeOpencode ? true, includeCodingAgentDerivations ? true }:
 
 with pkgs;
 [
@@ -84,11 +84,15 @@ with pkgs;
   kubernetes-helm
   awscli2
   claude-code
-  (pkgs.callPackage ../../pkgs/codex-omx.nix { })
 ]
-++ pkgs.lib.optionals (includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin") [
-  (pkgs.callPackage ../../pkgs/opencode-omo.nix { })
-]
+++ pkgs.lib.optionals includeCodingAgentDerivations (
+  [
+    (pkgs.callPackage ../../pkgs/codex-omx.nix { })
+  ]
+  ++ pkgs.lib.optionals (includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin") [
+    (pkgs.callPackage ../../pkgs/opencode-omo.nix { })
+  ]
+)
 ++ [
   lazygit
   mcp-nixos

@@ -1,7 +1,7 @@
 { pkgs }:
 
 with pkgs;
-let shared-packages = import ../shared/packages.nix { inherit pkgs; includeDocker = false; }; in
+let shared-packages = import ../shared/packages.nix { inherit pkgs; includeDocker = false; includeCodingAgentDerivations = false; }; in
 shared-packages ++ [
   # App replacements formerly installed as casks
   bruno
