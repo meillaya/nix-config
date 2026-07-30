@@ -36,11 +36,16 @@
         if ! command -v "$name" &>/dev/null; then
           echo "install-coding-agents: installing $name..."
           eval "$cmd"
+        else
+          echo "install-coding-agents: $name already present, skipping"
         fi
       }
-      install_if_missing codex "${npm} install -g @openai/codex"
-      install_if_missing omx "${npm} install -g oh-my-codex"
-      install_if_missing omo "${npm} install -g oh-my-opencode"
+      # npm-based installers use --force because the user's prior manual install
+      # may have left symlinks/files at the npm global prefix that block overwrite.
+      install_if_missing codex "${npm} install -g --force @openai/codex"
+      install_if_missing omx "${npm} install -g --force oh-my-codex"
+      install_if_missing omo "${npm} install -g --force oh-my-opencode"
+      # curl-based installers are idempotent and overwrite their own paths.
       install_if_missing opencode "${curl} -fsSL https://opencode.ai/install | ${bash}"
       install_if_missing pi "${curl} -fsSL https://pi.dev/install.sh | ${bash}"
       install_if_missing hermes "${curl} -fsSL https://hermes-agent.nousresearch.com/install.sh | ${bash}"
