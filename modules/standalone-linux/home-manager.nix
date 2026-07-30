@@ -57,16 +57,31 @@ in
 
   home.activation.installCodingAgents = let
     npm = "${pkgs.nodejs}/bin/npm";
-    node = "${pkgs.nodejs}/bin/node";
     curl = "${pkgs.curl}/bin/curl";
     bash = "${pkgs.bash}/bin/bash";
-    # npm postinstall scripts use node; the activation PATH lacks it by default.
-    # Derive bin dirs in Nix (avoids bash parameter-expansion inside Nix strings).
-    nodeBin = lib.getBin pkgs.nodejs;
-    curlBin = lib.getBin pkgs.curl;
-    bashBin = lib.getBin pkgs.bash;
+    tar = "${pkgs.gnutar}/bin";
+    gzip = "${pkgs.gzip}/bin";
+    bzip2 = "${pkgs.bzip2}/bin";
+    xz = "${pkgs.xz}/bin";
+    # npm postinstall scripts for oh-my-codex and oh-my-opencode invoke `node -e`
+    # via `sh -c`; npm rebuilds the script env in a way that drops the parent
+    # PATH, so the postinstall cannot find node even when activation PATH includes
+    # the nix-store nodejs bin. --ignore-scripts mirrors pkgs/codex-omx.nix:27-28
+    # and pkgs/opencode-omo.nix:33-34; the package authors wrap postinstalls in
+    # try/catch with the message "[omx] Postinstall skipped after a non-fatal
+    # error". @openai/codex is left untouched (its install succeeds in the
+    # original failure log and its postinstall is unanalyzed).
+    # The activation PATH is prefixed with `${pkgs.gnutar}/bin`,
+    # `${pkgs.gzip}/bin`, `${pkgs.bzip2}/bin`, `${pkgs.xz}/bin`,
+    # `${pkgs.bash}/bin`, and `${pkgs.curl}/bin` because the opencode
+    # curl|bash installer (the only remaining curl|bash line in this
+    # activation block) downloads a .tar.gz and extracts it with `tar`,
+    # and the HM activation PATH excludes /usr/bin and the host's
+    # interactive shell PATH. pi, hermes, and zeroclaw used to be here
+    # too but their installers are TTY-interactive and removed; user
+    # installs them manually (see README).
   in lib.hm.dag.entryAfter ["writeBoundary"] ''
-    export PATH="${nodeBin}:${curlBin}:${bashBin}:$PATH"
+    export PATH="${tar}:${gzip}:${bzip2}:${xz}:${pkgs.bash}/bin:${pkgs.curl}/bin:$PATH"
     install_if_missing() {
       local name="$1" cmd="$2"
       if ! command -v "$name" &>/dev/null; then
@@ -79,13 +94,13 @@ in
     # npm-based installers use --force because the user's prior manual install
     # may have left symlinks/files at the npm global prefix that block overwrite.
     install_if_missing codex "${npm} install -g --force @openai/codex"
-    install_if_missing omx "${npm} install -g --force oh-my-codex"
-    install_if_missing omo "${npm} install -g --force oh-my-opencode"
+    install_if_missing omx "${npm} install -g --ignore-scripts --force oh-my-codex"
+    install_if_missing omo "${npm} install -g --ignore-scripts --force oh-my-opencode"
     # curl-based installers are idempotent and overwrite their own paths.
+    # opencode is non-interactive and runs unattended; pi, hermes, and zeroclaw
+    # have interactive TTY-only installers and must be installed manually by the
+    # user (e.g. `npm install -g <package>` after this activation completes).
     install_if_missing opencode "${curl} -fsSL https://opencode.ai/install | ${bash}"
-    install_if_missing pi "${curl} -fsSL https://pi.dev/install.sh | ${bash}"
-    install_if_missing hermes "${curl} -fsSL https://hermes-agent.nousresearch.com/install.sh | ${bash}"
-    install_if_missing zeroclaw "${curl} -fsSL https://zeroclawlabs.ai/install.sh | ${bash}"
   '';
 
   targets.genericLinux.enable = true;
