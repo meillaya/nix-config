@@ -28,9 +28,12 @@
     stateVersion = "23.11";
     activation.installCodingAgents = let
       npm = "${pkgs.nodejs}/bin/npm";
+      node = "${pkgs.nodejs}/bin/node";
       curl = "${pkgs.curl}/bin/curl";
       bash = "${pkgs.bash}/bin/bash";
     in lib.hm.dag.entryAfter ["writeBoundary"] ''
+      # npm postinstall scripts use node; the activation PATH lacks it by default.
+      export PATH="${node%/*}:${curl%/*}:${bash%/*}:$PATH"
       install_if_missing() {
         local name="$1" cmd="$2"
         if ! command -v "$name" &>/dev/null; then
