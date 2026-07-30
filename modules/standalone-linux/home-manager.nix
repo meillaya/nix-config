@@ -60,9 +60,13 @@ in
     node = "${pkgs.nodejs}/bin/node";
     curl = "${pkgs.curl}/bin/curl";
     bash = "${pkgs.bash}/bin/bash";
-  in lib.hm.dag.entryAfter ["writeBoundary"] ''
     # npm postinstall scripts use node; the activation PATH lacks it by default.
-    export PATH="${node%/*}:${curl%/*}:${bash%/*}:$PATH"
+    # Derive bin dirs in Nix (avoids bash parameter-expansion inside Nix strings).
+    nodeBin = lib.getBin pkgs.nodejs;
+    curlBin = lib.getBin pkgs.curl;
+    bashBin = lib.getBin pkgs.bash;
+  in lib.hm.dag.entryAfter ["writeBoundary"] ''
+    export PATH="${nodeBin}:${curlBin}:${bashBin}:$PATH"
     install_if_missing() {
       local name="$1" cmd="$2"
       if ! command -v "$name" &>/dev/null; then
