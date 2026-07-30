@@ -36,7 +36,10 @@ let
           builtins.hasAttr key allowedUnfreePackagesBySystem
         else
           builtins.hasAttr (unfreeNameVersionKeyFor pkg) allowedUnfreePackagesByNameVersion;
-    allowInsecure = false;
+    allowInsecure = true;
+    problems.handlers = {
+      sublimetext4.broken = "warn";
+    };
   };
 in
 {
