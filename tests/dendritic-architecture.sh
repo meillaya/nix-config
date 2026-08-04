@@ -63,6 +63,11 @@ fi
 grep -Fq '"source": "~/.config/fastfetch/snoopy-mugiwara.png"' \
   modules/shared/config/fastfetch/config.jsonc
 
+# Logo must use inline Kitty transmission (`t=d`), not file transmission
+# (`kitty-direct` -> `t=f`): KDE Konsole only supports inline, and rejects
+# `t=f` by leaking `Gi=0;ENOTSUPPORTED:` onto the screen.
+grep -Fq '"type": "kitty"' modules/shared/config/fastfetch/config.jsonc
+
 fastfetch_home=$(mktemp -d "${TMPDIR:-/tmp}/fastfetch-profile.XXXXXX")
 fastfetch_output=$(mktemp "${TMPDIR:-/tmp}/fastfetch-output.XXXXXX")
 trap 'rm -rf "$fastfetch_home" "$fastfetch_output"' EXIT
@@ -75,8 +80,8 @@ HOME="$fastfetch_home" TERM=xterm-kitty KITTY_WINDOW_ID=1 \
     --pipe false \
     --structure OS > "$fastfetch_output"
 
-if ! grep -aFq 'a=T,f=100,t=f,c=40,r=30' "$fastfetch_output"; then
-  echo 'Fastfetch profile did not emit the expected 40x30 direct Kitty image' >&2
+if grep -aFq 'a=T,f=100,t=f' "$fastfetch_output"; then
+  echo 'Fastfetch profile still emits the Kitty file-transmission (t=f) sequence that KDE Konsole rejects with ENOTSUPPORTED' >&2
   exit 1
 fi
 
