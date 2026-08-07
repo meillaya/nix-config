@@ -209,6 +209,10 @@ They are additive — pick the one that matches the use case.
 - When you are ready to add the first real secret, follow the
   `agenix` / `sops-nix` / `secretspec` upstream docs and edit
   `modules/entities/_machine-authority/model.nix` accordingly.
+- The SSH key backup (`secrets/github-ssh-key.age`) and sops secret store are
+  encrypted to a dedicated recovery identity. Store the recovery key offline and
+  follow the restore procedures in
+  [docs/secrets/backup-and-recovery.md](docs/secrets/backup-and-recovery.md).
 
 ### Local staging boundary
 
