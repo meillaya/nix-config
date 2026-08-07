@@ -15,6 +15,9 @@ let
           lib.attrByPath [ "users" "users" primaryUser "home" ] null config;
     in
     if hmHome != null then hmHome else if managedUserHome != null then managedUserHome else "$HOME";
+  # GitHub authentication key (public part only; the private key lives in the
+  # git-ignored secrets/github-ssh-key.age age-encrypted backup).
+  githubPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPoWsO0x+p0FKVKOrfHPc0xeZuOZyMapMt8LxPbWHtb5 mei@entropyos-nix";
 in
 {
   ".npmrc" = {
@@ -28,9 +31,9 @@ in
     recursive = true;
   };
 
-  # ".ssh/id_github.pub" = {
-  #   text = githubPublicKey;
-  # };
+  ".ssh/id_github.pub" = {
+    text = githubPublicKey;
+  };
 
   # Initializes Emacs with org-mode so we can tangle the main config
   ".emacs.d/init.el" = {
