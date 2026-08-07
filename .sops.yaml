@@ -1,7 +1,14 @@
 keys:
   - &admin age1xxj3ft4g9gkfryedx85z9je76s07xxfqcvzl4c3t777d45hfgpvqwkpclc
+  - &recovery age1f3fgneph45yn900kqvzkysztspyz7puh9uqneujpxft5rsqjeglq99lnz0
 creation_rules:
   - path_regex: secrets/coding-agents\.yaml$
     key_groups:
       - age:
           - *admin
+          - *recovery
+  - path_regex: secrets/github-ssh-key\.age$
+    key_groups:
+      - age:
+          - *admin
+          - *recovery
