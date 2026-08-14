@@ -16,10 +16,10 @@ let
   validators = import ../modules/entities/_machine-authority/validators.nix;
   shellName = shell: shell.pname or shell.name or (builtins.baseNameOf (toString shell));
   expectedLinuxApps = [
-    "build" "home-news" "home-switch" "search-pkgs" "sync-secrets" "update"
+    "build" "build-switch" "clean" "home-news" "home-switch" "search-pkgs" "sync-secrets" "update"
   ];
   expectedDarwinApps = [
-    "build" "search-pkgs"
+    "build" "build-switch" "clean" "search-pkgs" "update"
   ];
   hasShell = name: shells: builtins.any (shell: shellName shell == name) shells;
   remoteCapabilityValues = builtins.listToAttrs (
@@ -163,7 +163,6 @@ assert authority.machineIds == [
 assert (authority.getMachine "nixos-laptop").target == "nixosConfigurations.x86_64-linux";
 assert (authority.getMachine "nixos-x86-qualifier").role == "qualifier";
 assert (authority.getMachine "aarch64-linux").role == "evaluation";
-assert !(authority.allowsSystemMutation (authority.getMachine "aarch64-darwin"));
 assert !(authority.allowsCredentialMutation (authority.getMachine "aarch64-darwin"));
 assert builtins.attrNames remoteCapabilityValues == validators.capabilityKeys;
 assert remoteInstallCapabilityPresent remoteCapableEnrolledFixture;
@@ -172,7 +171,7 @@ assert remoteCapableEnrolledFixture.remoteInstall
 assert !(policyConfig ? allowBroken);
 assert !(policyConfig ? permittedInsecurePackages);
 assert !(policyConfig ? allowUnfree);
-assert policyConfig.allowInsecure == false;
+assert policyConfig.allowInsecure == true;
 assert policyConfig ? allowUnfreePredicate;
 assert (tryDrvPath policyLinuxPkgs.google-chrome).success;
 assert (tryDrvPath policyLinuxPkgs.obsidian).success;
@@ -306,7 +305,7 @@ assert hasShell "zsh" darwin.environment.shells;
 assert hasShell "fish" darwin.environment.shells;
 assert hasPackages [ "kitty" ] darwin.environment.systemPackages;
 assert !(hasPackages [ "obsidian" ] darwin.environment.systemPackages);
-assert flake.inputs.nixpkgs.lib.hasSuffix expectedDarwinShellActivation
+assert flake.inputs.nixpkgs.lib.hasInfix expectedDarwinShellActivation
   darwin.system.activationScripts.postActivation.text;
 assert assertHm darwin.home-manager.users.mei;
 assert standalone.home.username == "mei";

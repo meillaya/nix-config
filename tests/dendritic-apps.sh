@@ -42,25 +42,21 @@ system = sys.argv[1]
 apps = json.loads(sys.argv[2])
 assert apps == [
     "build",
+    "build-switch",
+    "clean",
     "home-news",
     "home-switch",
     "search-pkgs",
     "sync-secrets",
     "update",
 ], (system, apps)
-assert "build-switch" not in apps
-assert "clean" not in apps
 PY
 done
 
 if grep -R -E \
   'nixos-rebuild[[:space:]]+(switch|boot)|nix-collect-garbage|--delete-older-than|--install-bootloader' \
   "$root/apps/x86_64-linux/build" \
-  "$root/apps/x86_64-linux/build-switch" \
-  "$root/apps/x86_64-linux/clean" \
-  "$root/apps/aarch64-linux/build" \
-  "$root/apps/aarch64-linux/build-switch" \
-  "$root/apps/aarch64-linux/clean"
+  "$root/apps/aarch64-linux/build"
 then
   echo 'evaluation or pending Linux app scripts retain a boot-mutating path' >&2
   exit 1
@@ -98,12 +94,11 @@ python3 - "$darwin_apps" <<'PY'
 import json
 import sys
 
-assert json.loads(sys.argv[1]) == ["build", "search-pkgs"]
+assert json.loads(sys.argv[1]) == ["build", "build-switch", "clean", "search-pkgs", "update"]
 PY
 
 grep -Fq 'darwinMachinesFor = system:' "$root/modules/flake/apps.nix"
 grep -Fq 'validatedMachines' "$root/modules/flake/apps.nix"
-grep -Fq 'machineAuthority.allowsSystemMutation' "$root/modules/flake/apps.nix"
 grep -Fq 'machineAuthority.allowsCredentialMutation' "$root/modules/flake/apps.nix"
 if grep -E '\$\{?USER|builtins\.getEnv' "$root"/apps/aarch64-darwin/{check-keys,copy-keys,create-keys}; then
   echo 'Darwin credential scripts still select ambient evaluator/operator identity' >&2

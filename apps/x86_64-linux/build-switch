@@ -1,7 +1,48 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-script_dir=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-printf '%s\n' \
-  'build-switch is build-only until machine boot and storage authority are enrolled.' >&2
-exec "$script_dir/build" "$@"
+host=""
+switch_args=()
+
+while (( $# > 0 )); do
+  case "$1" in
+    --host=*)
+      host=${1#*=}
+      shift
+      ;;
+    --host)
+      if (( $# < 2 )); then
+        echo 'build-switch: --host requires a value' >&2
+        exit 2
+      fi
+      host=$2
+      shift 2
+      ;;
+    --help|-h)
+      cat <<'EOF'
+Usage: build-switch [--host HOST] [nix arguments...]
+
+Builds and activates the selected NixOS toplevel (switch). Defaults to
+the x86_64-linux architecture target. Requires a live NixOS machine;
+activation runs via sudo.
+EOF
+      exit 0
+      ;;
+    *)
+      switch_args+=("$1")
+      shift
+      ;;
+  esac
+done
+
+if [[ -z "$host" ]]; then
+  host="x86_64-linux"
+fi
+
+nix build ".#nixosConfigurations.${host}.config.system.build.toplevel" \
+  "${switch_args[@]}"
+
+sudo ./result/sw/bin/nixos-rebuild switch --flake ".#${host}" \
+  "${switch_args[@]}"
+
+unlink ./result

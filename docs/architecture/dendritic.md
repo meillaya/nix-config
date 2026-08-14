@@ -137,17 +137,16 @@ nix run .#build
 ```
 
 The Linux app inventory derives activation authority from the machine records.
-While every Linux declaration is evaluation-only or pending, `build-switch` and
-`clean` are absent, and the compatibility scripts behind those names are also
-build-only: they cannot switch/boot a system or delete generations. Standalone
+`build-switch` builds the selected toplevel and runs `sudo nixos-rebuild
+switch`; `clean` deletes system generations older than 7 days. Standalone
 `home-switch` and `home-news` remain available on both Linux systems.
 
-The Apple Silicon machine is also operationally disabled. Its app inventory is
-derived from the validated machine record and exposes only build and package
-search. Darwin switching, generation cleanup, repository update, and key
-management apps remain absent until the corresponding machine/trust authority
-is enrolled; credential scripts accept only the typed identity supplied by an
-authorized wrapper, never ambient `$USER`.
+The Apple Silicon machine exposes the same `build-switch`, `clean`, `update`,
+`build`, and `search-pkgs` apps, where `build-switch` runs
+`sudo darwin-rebuild switch`; native Darwin build, activation, rollback, and
+TCC checks remain **NOT VERIFIED** until the first real switch. Credential
+scripts accept only the typed identity supplied by an authorized wrapper, never
+ambient `$USER`.
 
 Log out and back in after changing the graphical session configuration. Niri is
 the only generated login session. Verify Noctalia with:

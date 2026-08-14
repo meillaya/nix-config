@@ -50,8 +50,8 @@ Text were removed when repo-local overlays were deleted. If you still want any
 of those apps managed declaratively, reintroduce them via upstream nixpkgs,
 another flake input, or a separate dedicated repo.
 
-The current Darwin machine authority is operationally disabled, so repository
-verification is build-only and no `build-switch` app is exposed. App bundle
+The Darwin machine now exposes a real `build-switch` app (a `sudo darwin-rebuild
+switch`), so repository verification is no longer build-only. App bundle
 appearance under `/Applications/Nix Apps`, migration away from Homebrew, and
-native activation remain **NOT VERIFIED** until the machine is enrolled and an
-authorized native Darwin switch is performed.
+native activation remain **NOT VERIFIED** on the first switch. Build before
+switching, and roll back with `sudo darwin-rebuild rollback`.

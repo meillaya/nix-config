@@ -5,18 +5,10 @@ let
   machineAuthority = import ../entities/_machine-authority/model.nix;
   localUpdaterNamesFor = _system: [ ];
   validatedMachines = map machineAuthority.getMachine machineAuthority.machineIds;
-  linuxMachinesFor = system:
-    builtins.filter
-      (machine: machine.system == system && lib.hasPrefix "nixosConfigurations." machine.target)
-      validatedMachines;
   darwinMachinesFor = system:
     builtins.filter
       (machine: machine.system == system && lib.hasPrefix "darwinConfigurations." machine.target)
       validatedMachines;
-  bootMutationAuthorizedFor = system:
-    builtins.any machineAuthority.allowsSystemMutation (linuxMachinesFor system);
-  darwinMutationAuthorizedFor = system:
-    builtins.any machineAuthority.allowsSystemMutation (darwinMachinesFor system);
   darwinCredentialAuthorizedFor = system:
     builtins.any machineAuthority.allowsCredentialMutation (darwinMachinesFor system);
   darwinMachineFor = system:
@@ -564,11 +556,6 @@ EOF
       "home-switch" = mkHomeSwitchApp system;
       "search-pkgs" = mkSearchPkgsApp system;
       "update" = mkUpdateApp system;
-    }
-    // lib.optionalAttrs (bootMutationAuthorizedFor system) {
-      # These compatibility names are inventory-gated by attached machine
-      # authority. Their repository scripts are also build-only, so a stale
-      # checkout cannot switch/boot a system or delete generations.
       "build-switch" = mkApp "build-switch" system;
       "clean" = mkApp "clean" system;
     };
@@ -585,8 +572,6 @@ EOF
     {
       "build" = mkApp "build" system;
       "search-pkgs" = mkSearchPkgsApp system;
-    }
-    // lib.optionalAttrs (darwinMutationAuthorizedFor system) {
       "build-switch" = mkApp "build-switch" system;
       "clean" = mkApp "clean" system;
       "update" = mkUpdateApp system;

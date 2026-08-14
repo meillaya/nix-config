@@ -64,16 +64,20 @@ nix run .#update -- --local-only --package linux-home-sources
 
 ## macOS
 
-The declared Apple Silicon machine is evaluation-only and operationally
-disabled, so the flake exposes a build-only Darwin app:
+The declared Apple Silicon machine exposes `build-switch`, `clean`, `update`,
+`build`, and `search-pkgs` apps:
 
 ```bash
+nix run .#build-switch   # real sudo darwin-rebuild switch
+nix run .#clean          # delete generations older than 7 days
+nix run .#update
 nix --extra-experimental-features 'nix-command flakes' run .#build
+nix run .#search-pkgs -- <query>
 ```
 
-Live `build-switch`, generation cleanup, update, and credential apps are not
-exposed until validated machine authority is enrolled. Native Darwin build,
-activation, relogin, rollback, TCC, and runtime checks remain **NOT VERIFIED**.
+On the first switch, native Darwin build, activation, relogin, rollback, TCC,
+and runtime checks remain **NOT VERIFIED**. Build before switching, and if the
+activation goes wrong roll back with `sudo darwin-rebuild rollback`.
 
 ## NixOS
 
@@ -90,18 +94,24 @@ zsh
 fish
 ```
 
-The current NixOS declarations are evaluation-only or pending machine
-enrollment. Build a selected toplevel without activating it:
+The current NixOS declarations can be built without activating:
 
 ```bash
 nix --extra-experimental-features 'nix-command flakes' run .#build
 ```
 
-Accordingly, Linux does not expose `build-switch` or `clean` apps. Those names
-remain reserved until machine boot and storage authority is enrolled; there is
-currently no repo-app path to switch/boot NixOS or delete system generations.
-Disabled device/capability enrollment only suppresses enrollment-specific
-projection and does not force baseline upstream services off.
+Linux exposes `build-switch` and `clean` apps:
+
+```bash
+nix run .#build-switch -- --host <host>   # default x86_64-linux
+nix run .#clean
+```
+
+`build-switch` builds the selected toplevel and then runs
+`sudo nixos-rebuild switch`; `clean` deletes system generations older than
+7 days. Disabled device/capability enrollment only suppresses
+enrollment-specific projection and does not force baseline upstream services
+off.
 
 ## Existing Linux installs
 
@@ -238,3 +248,22 @@ referenced by `modules/*/secrets.nix`; do not add ignored plaintext
 application state to a flake source or Nix path. SecretSpec-managed
 secrets are read at runtime by the application; they do not pass
 through the Nix store.
+
+## Coding agents
+
+Code agents are installed and wrapped by the repo so provider keys flow through
+sops wrappers instead of being typed into each tool:
+
+| Agent | Install | Wrapped as | Notes |
+|---|---|---|---|
+| `codex` | npm `@openai/codex`, via `installCodingAgents` activation | `codex-wrapped` | |
+| `opencode` | curl\|bash installer | `opencode-wrapped` | harnessed by **oh-my-openagent** (npm `oh-my-opencode` 5.0.0-beta.7, launcher `omo-agent-toolkit`); wrapped via the Nix derivation `pkgs/opencode-omo.nix` |
+| `kimi` | npm `@moonshot-ai/kimi-code`, needs node >= 22.19, automated via activation | `kimi-wrapped` | auth via `/login` or `MOONSHOT_API_KEY` in `secrets/coding-agents.yaml` |
+| `hermes` | PyPI `hermes-agent` via `uv tool install`, automated via activation | `hermes-wrapped` | |
+| `zeroclaw` | v0.8.4 release tarball via `pkgs/zeroclaw.nix` (the repo's own prebuilt-binary install rule) | `zeroclaw-wrapped` | the zeroclaw repo's AGENTS.md/CLAUDE.md "rules" concern working inside their repo, not our install |
+| `lazycodex` | manual one-time `npx lazycodex-ai install` per machine (TUI installer cannot be automated) | | codex-side omo harness replacing omx in role; verify with `npx lazycodex-ai doctor`; requires codex and `~/.local/bin` on PATH |
+| `pi` | manual install only (TTY installer) | | |
+
+- **omx (oh-my-codex) is removed** and is no longer a codex agent.
+- `secrets/coding-agents.yaml` (sops) injects provider keys via the `*-wrapped`
+  sops wrappers.
