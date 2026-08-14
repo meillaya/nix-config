@@ -80,16 +80,17 @@ in
     # postinstall is unanalyzed).
     # The activation PATH is prefixed with `${pkgs.gnutar}/bin`,
     # `${pkgs.gzip}/bin`, `${pkgs.bzip2}/bin`, `${pkgs.xz}/bin`,
-    # `${pkgs.bash}/bin`, and `${pkgs.curl}/bin` because the opencode
-    # curl|bash installer (the only remaining curl|bash line in this
-    # activation block) downloads a .tar.gz and extracts it with `tar`,
+    # `${pkgs.bash}/bin`, `${pkgs.curl}/bin`, and `${pkgs.unzip}/bin`
+    # because the opencode curl|bash installer (the only remaining
+    # curl|bash line in this activation block) downloads a .tar.gz and
+    # extracts it with `tar` on Linux but a .zip with `unzip` on macOS,
     # and the HM activation PATH excludes /usr/bin and the host's
     # interactive shell PATH. pi and zeroclaw used to be here too but
     # their installers are TTY-interactive and removed; the user
     # installs them manually (see README). hermes is automated below
     # via `uv tool install hermes-agent` (non-interactive, idempotent).
   in lib.hm.dag.entryAfter ["writeBoundary"] ''
-    export PATH="${tar}:${gzip}:${bzip2}:${xz}:${pkgs.bash}/bin:${pkgs.curl}/bin:$PATH:$HOME/.local/bin:$HOME/.kimi-code/bin"
+    export PATH="${tar}:${gzip}:${bzip2}:${xz}:${pkgs.bash}/bin:${pkgs.curl}/bin:${pkgs.unzip}/bin:$PATH:$HOME/.local/bin:$HOME/.kimi-code/bin"
     install_if_missing() {
       local name="$1" cmd="$2"
       if ! command -v "$name" &>/dev/null; then
