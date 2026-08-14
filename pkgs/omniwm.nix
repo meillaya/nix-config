@@ -6,7 +6,7 @@ stdenvNoCC.mkDerivation {
 
   src = fetchzip {
     url = "https://github.com/BarutSRB/OmniWM/releases/download/v0.6.1/OmniWM-v0.6.1.zip";
-    hash = "sha256-vJlHMODd3bJaXH2Xtxi8BvH6xyMOiaJlzjb/SjXICQQ=";
+    hash = "sha256-/S1WvFeKiJWrG1QOXoDJhH5xn5sUfJ+pGLnLLpJ9OxM=";
   };
 
   dontBuild = true;
