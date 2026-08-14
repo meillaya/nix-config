@@ -104,6 +104,9 @@ in
             pn = "pnpm";
             px = "pnpx";
             diff = "difft";
+            # oh-my-openagent 5.x renamed the `omo` launcher bin to
+            # `omo-agent-toolkit`; keep the muscle-memory alias.
+            omo = "omo-agent-toolkit";
           };
         };
       };

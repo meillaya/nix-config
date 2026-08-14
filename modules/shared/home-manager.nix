@@ -40,6 +40,9 @@ in
       grep = "grep --color=auto";
       ls = "ls --color=auto";
       search = "rg -p --glob '!node_modules/*'";
+      # oh-my-openagent 5.x renamed the `omo` launcher bin to
+      # `omo-agent-toolkit`; keep the muscle-memory alias.
+      omo = "omo-agent-toolkit";
     };
     bashrcExtra = ''
       if [[ $- == *i* && -t 1 && "''${TERM:-}" != "dumb" && "''${FASTFETCH_INIT_PID:-}" != "$$" ]] && command -v fastfetch >/dev/null 2>&1; then
@@ -115,6 +118,9 @@ in
       diff = "difft";
       ls = "ls --color=auto";
       search = "rg -p --glob '!node_modules/*'";
+      # oh-my-openagent 5.x renamed the `omo` launcher bin to
+      # `omo-agent-toolkit`; keep the muscle-memory alias.
+      omo = "omo-agent-toolkit";
     };
     functions = {
       e.body = ''
@@ -340,6 +346,10 @@ in
 
         # Always color ls and group directories
         alias ls='ls --color=auto'
+
+        # oh-my-openagent 5.x renamed the `omo` launcher bin to
+        # `omo-agent-toolkit`; keep the muscle-memory alias.
+        alias omo=omo-agent-toolkit
       '')
 
       (lib.mkOrder 850 ''
