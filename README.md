@@ -258,6 +258,7 @@ sops wrappers instead of being typed into each tool:
 |---|---|---|---|
 | `codex` | npm `@openai/codex`, via `installCodingAgents` activation | `codex-wrapped` | |
 | `opencode` | curl\|bash installer | `opencode-wrapped` | harnessed by **oh-my-openagent** (npm `oh-my-opencode` 5.0.0-beta.7, launcher `omo-agent-toolkit`); wrapped via the Nix derivation `pkgs/opencode-omo.nix` |
+| `omo` (OMO Native) | npm `omo-ai@beta` (5.0.0-0.beta.7, Senpi engine `@code-yeongyu/senpi@2026.8.12-4`), needs node >= 24, via activation | | the native harness launcher CLI — NOT the same tool as `omo-agent-toolkit`; that one is the opencode-harness management CLI from `oh-my-opencode` |
 | `kimi` | manual one-time official installer: `curl -fsSL https://code.kimi.com/kimi-code/install.sh \| bash` (single binary at `~/.kimi-code/bin/kimi`; the shell PATH already includes it). NOT npm-managed — its npm postinstall invokes `node` via `sh -c` and fails under the HM activation PATH | `kimi-wrapped` | auth via `/login` or `MOONSHOT_API_KEY` in `secrets/coding-agents.yaml` |
 | `hermes` | PyPI `hermes-agent` via `uv tool install`, automated via activation | `hermes-wrapped` | |
 | `zeroclaw` | v0.8.4 release tarball via `pkgs/zeroclaw.nix` (the repo's own prebuilt-binary install rule) | `zeroclaw-wrapped` | the zeroclaw repo's AGENTS.md/CLAUDE.md "rules" concern working inside their repo, not our install |

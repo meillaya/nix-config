@@ -77,6 +77,8 @@
       # 5.0 renamed the launcher bin `omo` -> `omo-agent-toolkit`; pin the
       # same beta.7 version as pkgs/opencode-omo.nix.
       install_if_missing omo-agent-toolkit "${npm} install -g --ignore-scripts --force oh-my-opencode@5.0.0-beta.7"
+      # OMO Native (Senpi engine) ships the `omo` launcher bin; needs node >= 24.
+      install_if_missing omo "${npm} install -g --force omo-ai@beta"
       # kimi is installed manually with the official installer (single binary at
       # ~/.kimi-code/bin/kimi, already on the shell PATH); its npm postinstall
       # invokes `node` via `sh -c` and fails under the HM activation PATH, and
