@@ -33,6 +33,10 @@ in
 
   ".ssh/id_github.pub" = {
     text = githubPublicKey;
+    # force: replace the manual `id_github.pub -> id_ed25519.pub` symlink with the
+    # managed file. Safe — the declared githubPublicKey is byte-identical to
+    # id_ed25519.pub on the enrolled machines (verified 2026-08-14).
+    force = true;
   };
 
   # Initializes Emacs with org-mode so we can tangle the main config

@@ -89,7 +89,7 @@ in
     # installs them manually (see README). hermes is automated below
     # via `uv tool install hermes-agent` (non-interactive, idempotent).
   in lib.hm.dag.entryAfter ["writeBoundary"] ''
-    export PATH="${tar}:${gzip}:${bzip2}:${xz}:${pkgs.bash}/bin:${pkgs.curl}/bin:$PATH"
+    export PATH="${tar}:${gzip}:${bzip2}:${xz}:${pkgs.bash}/bin:${pkgs.curl}/bin:$PATH:$HOME/.local/bin:$HOME/.kimi-code/bin"
     install_if_missing() {
       local name="$1" cmd="$2"
       if ! command -v "$name" &>/dev/null; then
@@ -105,7 +105,10 @@ in
     # 5.0 renamed the launcher bin `omo` -> `omo-agent-toolkit`; pin the
     # same beta.7 version as pkgs/opencode-omo.nix.
     install_if_missing omo-agent-toolkit "${npm} install -g --ignore-scripts --force oh-my-opencode@5.0.0-beta.7"
-    install_if_missing kimi "${npm} install -g --force @moonshot-ai/kimi-code"
+    # kimi is installed manually with the official installer (single binary at
+    # ~/.kimi-code/bin/kimi, already on the shell PATH); its npm postinstall
+    # invokes `node` via `sh -c` and fails under the HM activation PATH, and
+    # the npm route would shadow the official binary via PATH ordering.
     install_if_missing hermes "${uv}/bin/uv tool install hermes-agent"
     # curl-based installers are idempotent and overwrite their own paths.
     # opencode is non-interactive and runs unattended; pi and zeroclaw
