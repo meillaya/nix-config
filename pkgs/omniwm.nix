@@ -2,18 +2,18 @@
 
 stdenvNoCC.mkDerivation {
   pname = "omniwm";
-  version = "0.5.9";
+  version = "0.6.1";
 
   src = fetchzip {
-    url = "https://github.com/BarutSRB/OmniWM/releases/download/v0.5.9/OmniWM-v0.5.9.zip";
-    hash = "sha256-9yZSO/xk0g72XQtG0Y/2ca64QxqItryMGtFl3o8aqYo=";
+    url = "https://github.com/BarutSRB/OmniWM/releases/download/v0.6.1/OmniWM-v0.6.1.zip";
+    hash = "sha256-vJlHMODd3bJaXH2Xtxi8BvH6xyMOiaJlzjb/SjXICQQ=";
   };
 
   dontBuild = true;
 
   installPhase = ''
-    mkdir -p $out/Applications/OmniWM.app
-    cp -r Contents $out/Applications/OmniWM.app/
+    mkdir -p $out/Applications
+    cp -r OmniWM.app $out/Applications/
     mkdir -p $out/bin
     ln -s $out/Applications/OmniWM.app/Contents/MacOS/omniwmctl $out/bin/omniwmctl
   '';
