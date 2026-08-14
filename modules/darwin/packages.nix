@@ -23,4 +23,8 @@ shared-packages ++ [
   (pkgs.callPackage ../../pkgs/omniwm.nix { })
   jetbrains.pycharm
   uv
+
+  # Coding agents (darwin imports shared with includeCodingAgentDerivations =
+  # false, so coding-agent derivations are added explicitly here)
+  (pkgs.callPackage ../../pkgs/zeroclaw.nix { })
 ]

@@ -1,22 +1,27 @@
 # oh-my-opencode: harness/wrapper for the Opencode CLI.
 #
 # Ships prebuilt (dist/), so dontNpmBuild = true.
-# The published tarball retains "workspaces" (27 entries), 26
-# "workspace:*" devDependencies, and bun-based scripts — npm fails
-# with EUNSUPPORTEDPROTOCOL / missing bun.  Lockfile AND stripped
-# manifest (no workspaces, devDependencies, or scripts) must be
-# injected via postPatch (not postUnpack) because buildNpmPackage's
-# npmDeps FOD only inherits prePatch/patches/postPatch.
+# Verified against the 5.0.0-beta.7 tarball (2026-08-13): the published
+# manifest still retains "workspaces" (30 entries), 29 "workspace:*"
+# devDependencies, and bun-based scripts (build/prepare), with NO
+# lockfile — npm fails with EUNSUPPORTEDPROTOCOL / missing bun.
+# Lockfile AND stripped manifest (no workspaces, devDependencies, or
+# scripts) must be injected via postPatch (not postUnpack) because
+# buildNpmPackage's npmDeps FOD only inherits prePatch/patches/postPatch.
+# 5.0 removed the `omo` bin; the launcher is now `omo-agent-toolkit`
+# (plus oh-my-opencode/oh-my-openagent/lazycodex/lazycodex-ai), all
+# pointing at bin/oh-my-opencode.js, which spawns the platform binary
+# shipped via optionalDependencies (oh-my-opencode-linux-x64, ...).
 
 { lib, buildNpmPackage, fetchurl, makeWrapper, opencode }:
 
 buildNpmPackage rec {
   pname = "opencode-omo";
-  version = "4.19.2";
+  version = "5.0.0-beta.7";
 
   src = fetchurl {
     url = "https://registry.npmjs.org/oh-my-opencode/-/oh-my-opencode-${version}.tgz";
-    hash = "sha256-4y08SVBhz8NzOtFc+DLOx66oqUEIOwnB6uY6mZiZIS4=";
+    hash = "sha256-El/a2jiQvOQOwsqo3ExPdXJae7+HgxpQTEy5fFgjox0=";
   };
 
   sourceRoot = "package";
@@ -28,7 +33,7 @@ buildNpmPackage rec {
     cp ${./opencode-omo/package.json} package.json
   '';
 
-  npmDepsHash = "sha256-5UAlXz0lYSyF2ujpWe2cJN1ylwH93S6Kv6rhMW2W+No=";
+  npmDepsHash = "sha256-htCJaqOW5g/rzH8KeEhUlRRMFFqEz/24kD7UYFTYJkA=";
 
   dontNpmBuild = true;
   npmFlags = [ "--ignore-scripts" ];
@@ -36,7 +41,7 @@ buildNpmPackage rec {
   nativeBuildInputs = [ makeWrapper ];
 
   postInstall = ''
-    makeWrapper $out/bin/omo $out/bin/opencode \
+    makeWrapper $out/bin/omo-agent-toolkit $out/bin/opencode \
       --prefix PATH : ${lib.makeBinPath [ opencode ]}
   '';
 

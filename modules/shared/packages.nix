@@ -38,6 +38,7 @@ with pkgs;
   dejavu_fonts
   ffmpeg
   fd
+  fira-sans
   font-awesome
   hack-font
   nerd-fonts.fira-code
@@ -83,14 +84,15 @@ with pkgs;
   kind
   kubernetes-helm
   awscli2
-  claude-code
 ]
 ++ pkgs.lib.optionals includeCodingAgentDerivations (
-  [
-    (pkgs.callPackage ../../pkgs/codex-omx.nix { })
-  ]
-  ++ pkgs.lib.optionals (includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin") [
+  pkgs.lib.optionals (includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin") [
     (pkgs.callPackage ../../pkgs/opencode-omo.nix { })
+  ]
+  ++ [
+    # zeroclaw is an independent agent runtime: gated only on
+    # includeCodingAgentDerivations, not on includeOpencode.
+    (pkgs.callPackage ../../pkgs/zeroclaw.nix { })
   ]
 )
 ++ [

@@ -24,6 +24,12 @@
         SECRETS_FILE="${user.identity.home}/nix-config/secrets/coding-agents.yaml"
         exec sops exec-env "$SECRETS_FILE" -- zeroclaw "$@"
       '') // { pname = "zeroclaw-wrapped"; })
+      ((pkgs.writeShellScriptBin "kimi-wrapped" ''
+        set -euo pipefail
+        export SOPS_AGE_KEY_FILE="${user.identity.home}/.config/sops/age/keys.txt"
+        SECRETS_FILE="${user.identity.home}/nix-config/secrets/coding-agents.yaml"
+        exec sops exec-env "$SECRETS_FILE" -- kimi "$@"
+      '') // { pname = "kimi-wrapped"; })
     ];
     stateVersion = "23.11";
     activation.installCodingAgents = let
@@ -34,23 +40,25 @@
       gzip = "${pkgs.gzip}/bin";
       bzip2 = "${pkgs.bzip2}/bin";
       xz = "${pkgs.xz}/bin";
-      # npm postinstall scripts for oh-my-codex and oh-my-opencode invoke `node -e`
+      uv = pkgs.uv;
+      # npm postinstall scripts for oh-my-opencode invoke `node -e`
       # via `sh -c`; npm rebuilds the script env in a way that drops the parent
       # PATH, so the postinstall cannot find node even when activation PATH includes
-      # the nix-store nodejs bin. --ignore-scripts mirrors pkgs/codex-omx.nix:27-28
-      # and pkgs/opencode-omo.nix:33-34; the package authors wrap postinstalls in
-      # try/catch with the message "[omx] Postinstall skipped after a non-fatal
-      # error". @openai/codex is left untouched (its install succeeds in the
-      # original failure log and its postinstall is unanalyzed).
+      # the nix-store nodejs bin. --ignore-scripts mirrors pkgs/opencode-omo.nix:33-34;
+      # the package author wraps the postinstall in a try/catch with the message
+      # "[omx] Postinstall skipped after a non-fatal error". @openai/codex is left
+      # untouched (its install succeeds in the original failure log and its
+      # postinstall is unanalyzed).
       # The activation PATH is prefixed with `${pkgs.gnutar}/bin`,
       # `${pkgs.gzip}/bin`, `${pkgs.bzip2}/bin`, `${pkgs.xz}/bin`,
       # `${pkgs.bash}/bin`, and `${pkgs.curl}/bin` because the opencode
       # curl|bash installer (the only remaining curl|bash line in this
       # activation block) downloads a .tar.gz and extracts it with `tar`,
       # and the HM activation PATH excludes /usr/bin and the host's
-      # interactive shell PATH. pi, hermes, and zeroclaw used to be here
-      # too but their installers are TTY-interactive and removed; user
-      # installs them manually (see README).
+      # interactive shell PATH. pi and zeroclaw used to be here too but
+      # their installers are TTY-interactive and removed; the user
+      # installs them manually (see README). hermes is automated below
+      # via `uv tool install hermes-agent` (non-interactive, idempotent).
     in lib.hm.dag.entryAfter ["writeBoundary"] ''
       export PATH="${tar}:${gzip}:${bzip2}:${xz}:${pkgs.bash}/bin:${pkgs.curl}/bin:$PATH"
       install_if_missing() {
@@ -65,12 +73,16 @@
       # npm-based installers use --force because the user's prior manual install
       # may have left symlinks/files at the npm global prefix that block overwrite.
       install_if_missing codex "${npm} install -g --force @openai/codex"
-      install_if_missing omx "${npm} install -g --ignore-scripts --force oh-my-codex"
-      install_if_missing omo "${npm} install -g --ignore-scripts --force oh-my-opencode"
+      # 5.0 renamed the launcher bin `omo` -> `omo-agent-toolkit`; pin the
+      # same beta.7 version as pkgs/opencode-omo.nix.
+      install_if_missing omo-agent-toolkit "${npm} install -g --ignore-scripts --force oh-my-opencode@5.0.0-beta.7"
+      install_if_missing kimi "${npm} install -g --force @moonshot-ai/kimi-code"
+      install_if_missing hermes "${uv}/bin/uv tool install hermes-agent"
       # curl-based installers are idempotent and overwrite their own paths.
-      # opencode is non-interactive and runs unattended; pi, hermes, and zeroclaw
-      # have interactive TTY-only installers and must be installed manually by the
-      # user (e.g. `npm install -g <package>` after this activation completes).
+      # opencode is non-interactive and runs unattended; pi and zeroclaw
+      # have interactive TTY-only installers and must be installed manually
+      # by the user (e.g. `npm install -g <package>` after this activation
+      # completes).
       install_if_missing opencode "${curl} -fsSL https://opencode.ai/install | ${bash}"
     '';
   };

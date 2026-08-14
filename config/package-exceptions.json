@@ -2,17 +2,6 @@
   "schemaVersion": 1,
   "unfree": [
     {
-      "expiresAt": "2026-10-15",
-      "maxTtlDays": 90,
-      "output": "darwinConfigurations.aarch64-darwin",
-      "owner": "mei",
-      "pname": "claude-code",
-      "reason": "preserve-existing-selected-application",
-      "reviewedAt": "2026-07-17",
-      "system": "aarch64-darwin",
-      "version": "2.1.201"
-    },
-    {
       "expiresAt": "2026-10-11",
       "maxTtlDays": 90,
       "output": "darwinConfigurations.aarch64-darwin",
@@ -83,17 +72,6 @@
       "maxTtlDays": 90,
       "output": "homeConfigurations.standalone-linux",
       "owner": "mei",
-      "pname": "claude-code",
-      "reason": "preserve-existing-selected-application",
-      "reviewedAt": "2026-07-17",
-      "system": "x86_64-linux",
-      "version": "2.1.201"
-    },
-    {
-      "expiresAt": "2026-10-15",
-      "maxTtlDays": 90,
-      "output": "homeConfigurations.standalone-linux",
-      "owner": "mei",
       "pname": "obsidian",
       "reason": "requested-desktop-application",
       "reviewedAt": "2026-07-17",
@@ -149,17 +127,6 @@
       "maxTtlDays": 90,
       "output": "homeConfigurations.standalone-linux-aarch64",
       "owner": "mei",
-      "pname": "claude-code",
-      "reason": "preserve-existing-selected-application",
-      "reviewedAt": "2026-07-17",
-      "system": "aarch64-linux",
-      "version": "2.1.201"
-    },
-    {
-      "expiresAt": "2026-10-15",
-      "maxTtlDays": 90,
-      "output": "homeConfigurations.standalone-linux-aarch64",
-      "owner": "mei",
       "pname": "terraform",
       "reason": "preserve-existing-selected-application",
       "reviewedAt": "2026-07-17",
@@ -193,17 +160,6 @@
       "maxTtlDays": 90,
       "output": "nixosConfigurations.aarch64-linux",
       "owner": "mei",
-      "pname": "claude-code",
-      "reason": "preserve-existing-selected-application",
-      "reviewedAt": "2026-07-17",
-      "system": "aarch64-linux",
-      "version": "2.1.201"
-    },
-    {
-      "expiresAt": "2026-10-15",
-      "maxTtlDays": 90,
-      "output": "nixosConfigurations.aarch64-linux",
-      "owner": "mei",
       "pname": "terraform",
       "reason": "preserve-existing-selected-application",
       "reviewedAt": "2026-07-17",
@@ -231,17 +187,6 @@
       "reviewedAt": "2026-07-13",
       "system": "aarch64-linux",
       "version": "2.4.9"
-    },
-    {
-      "expiresAt": "2026-10-15",
-      "maxTtlDays": 90,
-      "output": "nixosConfigurations.x86_64-linux",
-      "owner": "mei",
-      "pname": "claude-code",
-      "reason": "preserve-existing-selected-application",
-      "reviewedAt": "2026-07-17",
-      "system": "x86_64-linux",
-      "version": "2.1.201"
     },
     {
       "expiresAt": "2026-10-11",
@@ -360,9 +305,9 @@
       "owner": "mei",
       "pname": "opencode-omo",
       "reason": "requested-coding-agent-harness",
-      "reviewedAt": "2026-07-27",
+      "reviewedAt": "2026-08-14",
       "system": "x86_64-linux",
-      "version": "4.19.2"
+      "version": "5.0.0-beta.7"
     },
     {
       "expiresAt": "2026-10-25",
@@ -371,9 +316,9 @@
       "owner": "mei",
       "pname": "opencode-omo",
       "reason": "requested-coding-agent-harness",
-      "reviewedAt": "2026-07-27",
+      "reviewedAt": "2026-08-14",
       "system": "aarch64-linux",
-      "version": "4.19.2"
+      "version": "5.0.0-beta.7"
     },
     {
       "expiresAt": "2026-10-25",
@@ -382,9 +327,9 @@
       "owner": "mei",
       "pname": "opencode-omo",
       "reason": "requested-coding-agent-harness",
-      "reviewedAt": "2026-07-27",
+      "reviewedAt": "2026-08-14",
       "system": "aarch64-darwin",
-      "version": "4.19.2"
+      "version": "5.0.0-beta.7"
     }
   ]
 }

@@ -61,6 +61,12 @@ in
           SECRETS_FILE="${config.home.homeDirectory}/nix-config/secrets/coding-agents.yaml"
           exec sops exec-env "$SECRETS_FILE" -- opencode "$@"
         '') // { pname = "opencode-wrapped"; })
+        ((pkgs.writeShellScriptBin "kimi-wrapped" ''
+          set -euo pipefail
+          export SOPS_AGE_KEY_FILE="${config.home.homeDirectory}/.config/sops/age/keys.txt"
+          SECRETS_FILE="${config.home.homeDirectory}/nix-config/secrets/coding-agents.yaml"
+          exec sops exec-env "$SECRETS_FILE" -- kimi "$@"
+        '') // { pname = "kimi-wrapped"; })
       ];
       gtk.gtk4.theme = config.gtk.theme;
       home.file = import ../../shared/files.nix { inherit config pkgs lib; };

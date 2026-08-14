@@ -432,11 +432,6 @@ let
     Name=Open as Administrator
     Icon=system-file-manager
     Exec=${dolphinBin} --admin %U
-
-    [Desktop Action CopyPath]
-    Name=Copy Path
-    Icon=edit-copy
-    Exec=${config.home.homeDirectory}/.local/bin/omx-copy-path-to-clipboard %f
   '';
 
   arkServiceMenu = ''
@@ -751,26 +746,6 @@ in
             printf '%s\n' "$still_alive" | xargs -r kill -KILL 2>/dev/null || true
           fi
         fi
-      fi
-    '';
-  };
-
-  home.file.".local/bin/omx-copy-path-to-clipboard" = {
-    force = true;
-    executable = true;
-    text = ''
-      #!/bin/sh
-      set -eu
-      path=''${1:-}
-      [ -n "$path" ] || exit 0
-      if command -v wl-copy >/dev/null 2>&1; then
-        printf '%s' "$path" | wl-copy
-      elif command -v xclip >/dev/null 2>&1; then
-        printf '%s' "$path" | xclip -selection clipboard
-      elif command -v xsel >/dev/null 2>&1; then
-        printf '%s' "$path" | xsel --clipboard --input
-      else
-        exit 127
       fi
     '';
   };
