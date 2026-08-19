@@ -35,20 +35,6 @@
         touch "$out"
       '';
 
-      sync-secrets = pkgs.runCommand "sync-secrets" {
-        nativeBuildInputs = [ pkgs.bash pkgs.coreutils pkgs.gnugrep ];
-        SYNC_SECRETS_APP_PROGRAM_X86_64_LINUX =
-          builtins.unsafeDiscardStringContext inputs.self.apps.x86_64-linux.sync-secrets.program;
-        SYNC_SECRETS_APP_PROGRAM_AARCH64_LINUX =
-          builtins.unsafeDiscardStringContext inputs.self.apps.aarch64-linux.sync-secrets.program;
-        src = inputs.self;
-      } ''
-        cp -R "$src" source
-        chmod -R u+w source
-        bash source/tests/sync-secrets.sh
-        touch "$out"
-      '';
-
       package-policy = pkgs.runCommand "package-policy" {
         nativeBuildInputs = [ pkgs.bash pkgs.gnugrep pkgs.nix pkgs.python3 ];
         DENDRITIC_POLICY_REPO_ROOT = "${inputs.self}";

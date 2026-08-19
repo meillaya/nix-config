@@ -1,12 +1,11 @@
 {
-  description = "Starter Configuration with secrets for MacOS and NixOS";
+  description = "Personal Nix config: macOS via nix-darwin, and standalone Linux via Determinate Nix + Home Manager";
   inputs = {
     nixpkgs.url = "github:nixos/nixpkgs/nixos-unstable";
     emacs-overlay = {
       url = "github:dustinlyons/emacs-overlay";
       flake = false;
     };
-    agenix.url = "github:ryantm/agenix";
     sops-nix = {
       url = "github:Mic92/sops-nix";
       inputs.nixpkgs.follows = "nixpkgs";
@@ -14,10 +13,6 @@
     home-manager.url = "github:nix-community/home-manager";
     darwin = {
       url = "github:LnL7/nix-darwin/master";
-      inputs.nixpkgs.follows = "nixpkgs";
-    };
-    disko = {
-      url = "github:nix-community/disko";
       inputs.nixpkgs.follows = "nixpkgs";
     };
     zen-browser = {

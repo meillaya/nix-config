@@ -4,7 +4,7 @@
     let pkgs = inputs.nixpkgs.legacyPackages.${system};
     in {
       devShells.default = with pkgs; mkShell {
-        nativeBuildInputs = [ bashInteractive git age age-plugin-yubikey ];
+        nativeBuildInputs = [ bashInteractive git ];
         shellHook = ''
           export EDITOR=vim
         '';

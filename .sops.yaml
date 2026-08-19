@@ -7,8 +7,3 @@ creation_rules:
       - age:
           - *admin
           - *recovery
-  - path_regex: secrets/github-ssh-key\.age$
-    key_groups:
-      - age:
-          - *admin
-          - *recovery

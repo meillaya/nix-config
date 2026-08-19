@@ -1,0 +1,6 @@
+===task13-fixture===
+warning: Nix search path entry '/home/mei/.nix-defexpr/channels' does not exist, ignoring
+TASK 13 FIXTURE PASS
+===task13-negative===
+warning: Nix search path entry '/home/mei/.nix-defexpr/channels' does not exist, ignoring
+TASK 13 NEGATIVE PASS

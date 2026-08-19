@@ -1,0 +1,61 @@
+{
+  "schema_version": 2,
+  "active_work_id": "machine-enrollment-darwin",
+  "works": {
+    "machine-enrollment-darwin": {
+      "work_id": "machine-enrollment-darwin",
+      "active_plan": "/home/mei/nix-config/.omo/plans/machine-enrollment-darwin.md",
+      "plan_name": "machine-enrollment-darwin",
+      "status": "completed",
+      "started_at": "2026-08-14T02:29:14.874Z",
+      "updated_at": "2026-08-14T02:56:33.266Z",
+      "ended_at": "2026-08-14T02:56:33.266Z",
+      "session_ids": [
+        "opencode:ses_00d883f2bffe7yTRuX5T3r0DY4"
+      ],
+      "session_origins": {
+        "opencode:ses_00d883f2bffe7yTRuX5T3r0DY4": "direct"
+      },
+      "agent": "atlas",
+      "worktree_path": null,
+      "commit": "8de1a88",
+      "elapsed_ms": 1638392,
+      "task_sessions": {}
+    },
+    "coding-agents-update": {
+      "work_id": "coding-agents-update",
+      "active_plan": "/home/mei/nix-config/.omo/plans/coding-agents-update.md",
+      "plan_name": "coding-agents-update",
+      "status": "completed",
+      "started_at": "2026-08-14T02:29:14.874Z",
+      "updated_at": "2026-08-14T02:56:56.724Z",
+      "ended_at": "2026-08-14T02:56:56.724Z",
+      "session_ids": [
+        "opencode:ses_00d883f2bffe7yTRuX5T3r0DY4"
+      ],
+      "session_origins": {
+        "opencode:ses_00d883f2bffe7yTRuX5T3r0DY4": "direct"
+      },
+      "agent": "atlas",
+      "worktree_path": null,
+      "commit": "8240ef0",
+      "elapsed_ms": 1661850
+    }
+  },
+  "active_plan": "/home/mei/nix-config/.omo/plans/machine-enrollment-darwin.md",
+  "started_at": "2026-08-14T02:29:14.874Z",
+  "status": "completed",
+  "updated_at": "2026-08-14T02:56:33.266Z",
+  "session_ids": [
+    "opencode:ses_00d883f2bffe7yTRuX5T3r0DY4"
+  ],
+  "session_origins": {
+    "opencode:ses_00d883f2bffe7yTRuX5T3r0DY4": "direct"
+  },
+  "plan_name": "machine-enrollment-darwin",
+  "agent": "atlas",
+  "worktree_path": null,
+  "task_sessions": {},
+  "ended_at": "2026-08-14T02:56:33.266Z",
+  "elapsed_ms": 1638392
+}

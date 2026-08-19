@@ -1,11 +1,10 @@
-{ pkgs, includeDocker ? true, includeOpencode ? true, includeCodingAgentDerivations ? true }:
+{ pkgs, includeDocker ? true }:
 
 with pkgs;
 [
   # General packages for development and system management
   ast-grep
   aria2
-  secretspec
   bash-completion
   bat
   bear
@@ -28,8 +27,6 @@ with pkgs;
   zip
 
   # Encryption and security tools
-  age
-  age-plugin-yubikey
   gnupg
   libfido2
 
@@ -85,16 +82,6 @@ with pkgs;
   kubernetes-helm
   awscli2
 ]
-++ pkgs.lib.optionals includeCodingAgentDerivations (
-  pkgs.lib.optionals (includeOpencode && pkgs.stdenv.hostPlatform.system != "x86_64-darwin") [
-    (pkgs.callPackage ../../pkgs/opencode-omo.nix { })
-  ]
-  ++ [
-    # zeroclaw is an independent agent runtime: gated only on
-    # includeCodingAgentDerivations, not on includeOpencode.
-    (pkgs.callPackage ../../pkgs/zeroclaw.nix { })
-  ]
-)
 ++ [
   lazygit
   mcp-nixos

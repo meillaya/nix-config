@@ -1,0 +1,2 @@
+## work/nix-config-machine-readiness
+?? scripts/readiness/__pycache__/

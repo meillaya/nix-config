@@ -35,24 +35,50 @@ for path in \
   modules/entities/_machine-authority/model.nix \
   modules/entities/_machine-authority/validators.nix \
   modules/aspects/shared-policy/nixpkgs.nix \
-  modules/aspects/platforms/linux.nix \
   modules/aspects/platforms/darwin.nix \
-  modules/aspects/roles/workstation-linux.nix \
   modules/aspects/roles/workstation-darwin.nix \
-  modules/aspects/hardware/pending-x86-workstation.nix \
-  modules/aspects/hardware/evaluation-aarch64.nix \
   modules/aspects/hardware/apple-silicon.nix \
-  modules/aspects/storage/nixos-laptop.nix \
-  modules/aspects/storage/aarch64-linux.nix \
+  modules/aspects/hardware/device-capability-routing.nix \
   modules/aspects/storage/aarch64-darwin.nix \
-  modules/aspects/named-hosts/nixos-laptop.nix \
-  modules/aspects/named-hosts/aarch64-linux.nix \
   modules/aspects/named-hosts/aarch64-darwin.nix \
   modules/aspects/users/mei.nix \
-  modules/aspects/hosts/nixos-workstation.nix \
-  modules/aspects/hosts/darwin-workstation.nix
+  modules/aspects/hosts/darwin-workstation.nix \
+  modules/aspects/hosts/standalone-linux.nix \
+  modules/aspects/features/darwin-base.nix \
+  modules/aspects/features/darwin-home.nix \
+  modules/aspects/features/darwin-dock.nix \
+  modules/aspects/features/sops.nix
 do
   test -f "$path"
+done
+
+# nix-config must NOT contain any NixOS-only aspects (they live in NixOS-config).
+for path in \
+  modules/aspects/platforms/linux.nix \
+  modules/aspects/roles/workstation-linux.nix \
+  modules/aspects/roles/qualifier-linux.nix \
+  modules/aspects/roles/evaluation-linux.nix \
+  modules/aspects/hardware/pending-x86-workstation.nix \
+  modules/aspects/hardware/pending-x86-qualifier.nix \
+  modules/aspects/hardware/evaluation-aarch64.nix \
+  modules/aspects/hardware/x86-vendor-routing.nix \
+  modules/aspects/storage/nixos-laptop.nix \
+  modules/aspects/storage/aarch64-linux.nix \
+  modules/aspects/storage/nixos-x86-qualifier.nix \
+  modules/aspects/named-hosts/nixos-laptop.nix \
+  modules/aspects/named-hosts/aarch64-linux.nix \
+  modules/aspects/named-hosts/nixos-x86-qualifier.nix \
+  modules/aspects/hosts/nixos-workstation.nix \
+  modules/aspects/features/bootstrap-password.nix \
+  modules/aspects/features/nixos-base.nix \
+  modules/aspects/features/niri.nix \
+  modules/aspects/features/desktop-media.nix \
+  modules/aspects/features/linux-desktop.nix
+do
+  if [[ -e $path ]]; then
+    echo "nix-config must not contain NixOS-only aspect: $path" >&2
+    exit 1
+  fi
 done
 
 if ! test -f modules/shared/config/fastfetch/snoopy-mugiwara.png; then
@@ -108,13 +134,25 @@ fi
 
 if grep -R -Fq 'x86_64-darwin' \
   modules/entities/hosts.nix modules/flake/systems.nix \
-  modules/flake/apps.nix modules/aspects/hosts/darwin-workstation.nix; then
+  modules/flake/apps.nix; then
   echo 'unsupported x86_64-darwin output remains in the Dendritic graph' >&2
   exit 1
 fi
 
 test ! -e apps/x86_64-darwin
 
+# nix-config declares no NixOS systems.
+nix_systems=$(nix eval --impure --json --expr \
+  "builtins.attrNames (builtins.getFlake \"path:$root\").nixosConfigurations or {}")
+python3 - "$nix_systems" <<'PY'
+import json
+import sys
+
+systems = json.loads(sys.argv[1])
+assert systems == [], f"nix-config must declare no nixosConfigurations; got {systems}"
+PY
+
+# Darwin systems still expected on nix-config.
 if [[ -v DENDRITIC_DARWIN_CONFIGURATION_SYSTEMS ]]; then
   darwin_configuration_systems=$DENDRITIC_DARWIN_CONFIGURATION_SYSTEMS
 else

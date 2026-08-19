@@ -8,9 +8,7 @@ in
       pkgs = mkConfiguredPkgs system;
     in
     {
-      packages = {
-        opencode-omo = pkgs.callPackage ../../pkgs/opencode-omo.nix { };
-      } // lib.optionalAttrs (system == "aarch64-darwin") {
+      packages = lib.optionalAttrs (system == "aarch64-darwin") {
         omniwm = pkgs.callPackage ../../pkgs/omniwm.nix { };
       };
     };

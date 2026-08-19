@@ -1,49 +1,16 @@
 let
   validators = import ./validators.nix;
 
+  # This repo owns the aarch64-darwin machine and re-declares the laptop and
+  # aarch64-linux machines so the standalone Linux Home Manager entities
+  # (which live in this repo) have machine data to attach. The duplicate
+  # records must stay in sync with ~/NixOS-config.
   machines = {
     nixos-laptop = {
       hostId = "nixos-laptop";
       target = "nixosConfigurations.x86_64-linux";
       system = "x86_64-linux";
       role = "workstation";
-      identity = {
-        name = "mei";
-        home = "/home/mei";
-        uid = 1000;
-        gid = 100;
-      };
-      location = {
-        timeZone = "America/New_York";
-        locale = "en_US.UTF-8";
-        keymap = "us";
-        xkb = "us";
-      };
-      display.scale = {
-        numerator = 1;
-        denominator = 1;
-      };
-      boot.state = "disabled";
-      storage.profile = "none";
-      publicTrust.state = "disabled";
-      secretTrust.state = "disabled";
-      cpuVendor = "pending";
-      firmware = "disabled";
-      kernel = "disabled";
-      gpu = "disabled";
-      network = "disabled";
-      devices.state = "disabled";
-      capabilities.state = "disabled";
-      ddcConnectors = [ ];
-      remoteInstall = false;
-      platformExpectations.kind = "none";
-    };
-
-    nixos-x86-qualifier = {
-      hostId = "nixos-x86-qualifier";
-      target = "nixosConfigurations.nixos-x86-qualifier";
-      system = "x86_64-linux";
-      role = "qualifier";
       identity = {
         name = "mei";
         home = "/home/mei";
@@ -193,15 +160,10 @@ let
     validated.boot.state != "disabled"
     || validated.storage.profile != "none"
     || validated.capabilities.state == "enrolled";
-  allowsCredentialMutation = machine:
-    let validated = validators.assertValid machine;
-    in
-    validated.publicTrust.state == "enrolled"
-    && validated.secretTrust.state == "enrolled";
 in
 validators
 // {
-  inherit machines machineIds getMachine allowsSystemMutation allowsCredentialMutation;
+  inherit machines machineIds getMachine allowsSystemMutation;
   declaredMachineIds = machineIds;
   isDeclaredMachineId = hostId: builtins.hasAttr hostId machines;
 }

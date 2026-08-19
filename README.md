@@ -149,105 +149,30 @@ To read Home Manager news with this flake-based setup, use:
 nix run .#home-news
 ```
 
-To sync ignored local secrets from a private repo into a writable checkout,
-identify that checkout explicitly with `--repo-root` or
-`NIX_CONFIG_REPO_ROOT`:
-
-```bash
-NIX_SECRETS_REPO=git@github.com:Meillaya/nix-screts.git \
-  nix run .#sync-secrets -- --repo-root "$PWD"
-```
-
-`--repo-root` takes precedence over `NIX_CONFIG_REPO_ROOT`. If neither is
-supplied, `sync-secrets` fails closed, even when invoked from inside a Git
-checkout; there is no detected-checkout fallback. The cloned secrets-repository
-URL is never logged. The sync recursively rejects symlinks in both its source
-and destination paths, and replaces live files with an atomic same-filesystem
-exchange rather than an in-place write.
-
 Standalone identity is part of the Den home entity declaration. To support a different user or home directory, add a distinct typed home entity and output instead of relying on ambient environment overrides.
 
 For the repo-specific WSL notes, including the Determinate-only requirement verified against official docs on Friday, July 17, 2026, see `docs/service-notes/wsl-standalone-home-manager.md`.
 
 ## Secrets
 
-This repo adopts three secret-management tools, each for a different layer.
-They are additive — pick the one that matches the use case.
+This repo keeps only `sops-nix` for Nix-evaluated secret delivery. The
+aspect at `modules/aspects/features/sops.nix` injects the 5 coding-agent
+API keys (`OPENAI_API_KEY`, `ANTHROPIC_API_KEY`, `GEMINI_API_KEY`,
+`OPENROUTER_API_KEY`, `GITHUB_TOKEN`) from `secrets/coding-agents.yaml`
+into both Darwin and NixOS hosts.
 
-### When to use which
-
-- **agenix** — NixOS activation-time file delivery. Use for system services
-  that read a file path (e.g. `services.foo.environmentFile =
-  config.age.secrets."foo-env".path`). The aspect at
-  `modules/aspects/features/secrets.nix` is wired into both Darwin and Linux
-  platforms and ships the `agen` / `agenix` CLI on every host.
-- **sops-nix** — shared/structured secrets (YAML, JSON, ENV, INI). Use when
-  a single SOPS file lists multiple secrets for a host, or when the
-  recipient policy should be path-based. The aspect at
-  `modules/aspects/features/sops.nix` is wired into both Darwin and Linux
-  platforms and ships the `sops` CLI on NixOS and Darwin hosts. The
-  standalone Linux Home Manager configuration adds `sops` directly to its
-  package list (`modules/standalone-linux/packages.nix`) because the
-  standalone home does not include `linux-platform`.
-- **secretspec** — typed app-SDK consumers. Use when a new application
-  imports the Rust / Python / Go / Node SDK and wants compile-time
-  guarantees about which secrets it requires. The `secretspec` CLI is
-  shipped via `modules/shared/packages.nix`. A template manifest lives at
-  `secretspec/secretspec.toml`.
-
-### Recipient / policy files
-
-- **agenix** recipient lists live in `secrets.nix` (per the
-  `agenix` upstream convention; this repo has none committed yet).
-- **sops-nix** creation rules would live at the repo root in `.sops.yaml`
-  (this repo has none committed yet; not yet created).
-- **secretspec** provider aliases and profiles live in
-  `secretspec/secretspec.toml` (a template is committed; the actual
-  production profiles are operator-local).
-
-### Current state
-
-- agenix, sops-nix, and secretspec are all installed and wired.
-- **No first secret is enrolled.** Every declared machine in
+- The recipient policy is `.sops.yaml` at the repo root.
+- Both recipients (`&admin` and `&recovery`) must remain trusted for
+  existing sops files to decrypt after rotation.
+- No first secret is enrolled. Every declared machine in
   `modules/entities/_machine-authority/model.nix` carries
   `publicTrust.state = "disabled"; secretTrust.state = "disabled";`.
-- The `validators.nix:498-501` cross-field rule requires
-  `boot.state = "uefi"` + `storage.profile = "single-gpt-btrfs"` +
-  `publicTrust.state = "enrolled"` before any
-  `secretTrust.state = "enrolled"` may be set. That capability work is
-  outside the scope of this repo's current machine authority.
-- When you are ready to add the first real secret, follow the
-  `agenix` / `sops-nix` / `secretspec` upstream docs and edit
-  `modules/entities/_machine-authority/model.nix` accordingly.
-- The SSH key backup (`secrets/github-ssh-key.age`) and sops secret store are
-  encrypted to a dedicated recovery identity. Store the recovery key offline and
-  follow the restore procedures in
-  [docs/secrets/backup-and-recovery.md](docs/secrets/backup-and-recovery.md).
 
-### Local staging boundary
-
-The ignored local `secrets/` directory is an out-of-store staging boundary.
-Home Manager does not ingest or manage the synced plaintext Kavita or
-Calibre files and does not create `home.file.source` links for them. After
-syncing, install only the files an application needs as a manual runtime
-workflow outside Nix evaluation, for example:
-
-```bash
-install -d -m 0700 "$HOME/Documents/Kavita/config" "$HOME/.config/calibre"
-install -m 0600 secrets/kavita/appsettings.json \
-  "$HOME/Documents/Kavita/config/appsettings.json"
-install -m 0600 secrets/calibre/{global.py.json,gui.py.json,customize.py.json} \
-  "$HOME/.config/calibre/"
-```
-
-These commands are a manual runtime workflow, not a Home Manager
-activation or proof that provider credentials were rotated.
-
-Only encrypted material intended for `agenix` or `sops-nix` may be
-referenced by `modules/*/secrets.nix`; do not add ignored plaintext
-application state to a flake source or Nix path. SecretSpec-managed
-secrets are read at runtime by the application; they do not pass
-through the Nix store.
+The ignored local `secrets/` directory holds `coding-agents.yaml` (tracked,
+sops-encrypted) and operator-local runtime files such as `calibre/`. Those
+plaintext files are not ingested by Home Manager or referenced from a Nix
+path; they are installed manually per the per-service notes in
+`docs/service-notes/`.
 
 ## Coding agents
 
@@ -257,14 +182,9 @@ sops wrappers instead of being typed into each tool:
 | Agent | Install | Wrapped as | Notes |
 |---|---|---|---|
 | `codex` | npm `@openai/codex`, via `installCodingAgents` activation | `codex-wrapped` | |
-| `opencode` | curl\|bash installer | `opencode-wrapped` | harnessed by **oh-my-openagent** (npm `oh-my-opencode` 5.0.0-beta.7, launcher `omo-agent-toolkit`); wrapped via the Nix derivation `pkgs/opencode-omo.nix` |
 | `omo` (OMO Native) | npm `omo-ai@beta` (5.0.0-0.beta.7, Senpi engine `@code-yeongyu/senpi@2026.8.12-4`), needs node >= 24, via activation | | the native harness launcher CLI — NOT the same tool as `omo-agent-toolkit`; that one is the opencode-harness management CLI from `oh-my-opencode` |
-| `kimi` | manual one-time official installer: `curl -fsSL https://code.kimi.com/kimi-code/install.sh \| bash` (single binary at `~/.kimi-code/bin/kimi`; the shell PATH already includes it). NOT npm-managed — its npm postinstall invokes `node` via `sh -c` and fails under the HM activation PATH | `kimi-wrapped` | auth via `/login` or `MOONSHOT_API_KEY` in `secrets/coding-agents.yaml` |
-| `hermes` | PyPI `hermes-agent` via `uv tool install`, automated via activation | `hermes-wrapped` | |
-| `zeroclaw` | v0.8.4 release tarball via `pkgs/zeroclaw.nix` (the repo's own prebuilt-binary install rule) | `zeroclaw-wrapped` | the zeroclaw repo's AGENTS.md/CLAUDE.md "rules" concern working inside their repo, not our install |
 | `lazycodex` | manual one-time `npx lazycodex-ai install` per machine (TUI installer cannot be automated) | | codex-side omo harness replacing omx in role; verify with `npx lazycodex-ai doctor`; requires codex and `~/.local/bin` on PATH |
-| `pi` | manual install only (TTY installer) | | |
 
 - **omx (oh-my-codex) is removed** and is no longer a codex agent.
-- `secrets/coding-agents.yaml` (sops) injects provider keys via the `*-wrapped`
-  sops wrappers.
+- `secrets/coding-agents.yaml` (sops) injects provider keys via the
+  `codex-wrapped` sops wrapper.

@@ -2,22 +2,7 @@
 let
   inherit (inputs) self home-manager nixpkgs;
   mkConfiguredPkgs = (import ../../lib/nixpkgs.nix { inherit inputs; }).mkPkgs;
-  machineAuthority = import ../entities/_machine-authority/model.nix;
   localUpdaterNamesFor = _system: [ ];
-  validatedMachines = map machineAuthority.getMachine machineAuthority.machineIds;
-  darwinMachinesFor = system:
-    builtins.filter
-      (machine: machine.system == system && lib.hasPrefix "darwinConfigurations." machine.target)
-      validatedMachines;
-  darwinCredentialAuthorizedFor = system:
-    builtins.any machineAuthority.allowsCredentialMutation (darwinMachinesFor system);
-  darwinMachineFor = system:
-    let machines = darwinMachinesFor system;
-    in
-    if builtins.length machines == 1 then
-      builtins.head machines
-    else
-      throw "expected exactly one validated Darwin machine for ${system}";
   mkApp = scriptName: system: {
     type = "app";
     program = "${(nixpkgs.legacyPackages.${system}.writeScriptBin scriptName ''
@@ -275,17 +260,6 @@ EOF
           news \
           ''${hm_args[@]}
       '')}/bin/home-news";
-    };
-  mkSyncSecretsApp = system:
-    let
-      pkgs = nixpkgs.legacyPackages.${system};
-    in mkScriptBackedApp "sync-secrets" system {
-      scriptPath = "${self}/apps/linux/sync-secrets";
-      runtimeInputs = [
-        pkgs.coreutils
-        pkgs.git
-        pkgs.rsync
-      ];
     };
   mkUpdateApp = system:
     let
@@ -551,7 +525,6 @@ EOF
   mkLinuxApps = system:
     {
       "build" = mkApp "build" system;
-      "sync-secrets" = mkSyncSecretsApp system;
       "home-news" = mkHomeNewsApp system;
       "home-switch" = mkHomeSwitchApp system;
       "search-pkgs" = mkSearchPkgsApp system;
@@ -560,26 +533,12 @@ EOF
       "clean" = mkApp "clean" system;
     };
   mkDarwinApps = system:
-    let
-      machine = darwinMachineFor system;
-      mkCredentialApp = scriptName: mkScriptBackedApp scriptName system {
-        extraEnv = {
-          NIX_CONFIG_USER_NAME = machine.identity.name;
-          NIX_CONFIG_USER_HOME = machine.identity.home;
-        };
-      };
-    in
     {
       "build" = mkApp "build" system;
       "search-pkgs" = mkSearchPkgsApp system;
       "build-switch" = mkApp "build-switch" system;
       "clean" = mkApp "clean" system;
       "update" = mkUpdateApp system;
-    }
-    // lib.optionalAttrs (darwinCredentialAuthorizedFor system) {
-      "copy-keys" = mkCredentialApp "copy-keys";
-      "create-keys" = mkCredentialApp "create-keys";
-      "check-keys" = mkCredentialApp "check-keys";
     };
 in {
   perSystem = { system, ... }: {

@@ -1,7 +1,7 @@
 { pkgs }:
 
 with pkgs;
-let shared-packages = import ../shared/packages.nix { inherit pkgs; includeDocker = false; includeCodingAgentDerivations = false; }; in
+let shared-packages = import ../shared/packages.nix { inherit pkgs; includeDocker = false; }; in
 shared-packages ++ [
   # App replacements formerly installed as casks
   bruno
@@ -23,8 +23,4 @@ shared-packages ++ [
   (pkgs.callPackage ../../pkgs/omniwm.nix { })
   jetbrains.pycharm
   uv
-
-  # Coding agents (darwin imports shared with includeCodingAgentDerivations =
-  # false, so coding-agent derivations are added explicitly here)
-  (pkgs.callPackage ../../pkgs/zeroclaw.nix { })
 ]
