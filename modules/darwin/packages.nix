@@ -12,6 +12,7 @@ shared-packages ++ [
   kitty
   postman
   vesktop
+  raycast
 
   # Development tools
   cocoapods

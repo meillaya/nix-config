@@ -2,6 +2,17 @@
   "schemaVersion": 1,
   "unfree": [
     {
+      "expiresAt": "2026-11-19",
+      "maxTtlDays": 90,
+      "output": "darwinConfigurations.aarch64-darwin",
+      "owner": "mei",
+      "pname": "raycast",
+      "reason": "preserve-existing-selected-application",
+      "reviewedAt": "2026-08-19",
+      "system": "aarch64-darwin",
+      "version": "1.104.24"
+    },
+    {
       "expiresAt": "2026-10-11",
       "maxTtlDays": 90,
       "output": "darwinConfigurations.aarch64-darwin",
