@@ -24,12 +24,20 @@ nix run .#build              # build only
 nix run .#clean              # delete generations older than 7 days
 nix run .#update             # flake inputs
 nix run .#search-pkgs -- <query>
+nix run .#nh -- os switch --hostname aarch64-darwin
 ```
 
 On the first switch, native Darwin build, activation, relogin, rollback,
 and TCC checks remain **NOT VERIFIED** until the first real switch.
 Build before switching, and if the activation goes wrong roll back with
 `sudo darwin-rebuild rollback`.
+
+`raycast` is installed as a Spotlight replacement via
+`modules/darwin/packages.nix`. After the first switch, enable it as
+the default launcher (System Settings → Keyboard → Spotlight, or via
+the Raycast UI itself) and install extensions interactively.
+Per-machine extension/keymap state lives in
+`~/Library/Application Support/com.raycast.macos/` and is not vendored.
 
 ## Standalone Linux
 
@@ -44,6 +52,7 @@ Then switch the standalone home:
 ```bash
 nix run .#home-switch                              # defaults to standalone-linux on x86_64
 nix run .#home-switch -- --target standalone-linux-aarch64
+nix run .#nh -- home switch --hostname standalone-linux-aarch64
 ```
 
 Subsequent updates:
@@ -87,6 +96,23 @@ activation block — the wrappers, install hooks, and other agents
 are removed. `lazycodex` is installed manually via
 `npx lazycodex-ai install`. The shared `codex-wrapped` shim injects
 provider keys from the sops file at runtime.
+
+## Tooling flakes
+
+The flake registers the same four extras as `~/NixOS-config/`
+(see `flake.nix`): `stylix`, `nix-direnv`, `nh`, `preservation`.
+`stylix` and `preservation` are NixOS-only and not wired here
+(`preservation` is declared as a flake input for lockfile symmetry;
+see the comment in `modules/aspects/platforms/darwin.nix`).
+`nix-direnv` ships in `modules/shared/packages.nix`, and `.envrc`
+contains `use flake` so the flake's dev shell activates automatically.
+
+`nh` (viperML/nh 4.4.2) is exposed as a flake app:
+
+```bash
+nix run .#nh -- os switch --hostname aarch64-darwin
+nix run .#nh -- home switch --hostname standalone-linux
+```
 
 ## Layout
 
