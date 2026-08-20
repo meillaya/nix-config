@@ -29,6 +29,7 @@ with pkgs;
   # Encryption and security tools
   gnupg
   libfido2
+  nix-direnv
 
   # Media-related packages
   emacs-all-the-icons-fonts
