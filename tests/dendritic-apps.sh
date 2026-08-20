@@ -18,7 +18,9 @@ python3 - "$darwin_apps" <<'PY'
 import json
 import sys
 
-assert json.loads(sys.argv[1]) == ["build", "build-switch", "clean", "search-pkgs", "update"]
+assert json.loads(sys.argv[1]) == [
+    "build", "build-switch", "clean", "nh", "search-pkgs", "update",
+]
 PY
 
 test ! -e "$root/apps/x86_64-darwin" || test ! -d "$root/apps/x86_64-darwin"
@@ -45,7 +47,9 @@ import json
 import sys
 
 apps = json.loads(sys.argv[1])
-assert apps == ["build", "build-switch", "clean", "search-pkgs", "update"], apps
+assert apps == [
+    "build", "build-switch", "clean", "nh", "search-pkgs", "update",
+], apps
 PY
 
 # Other systems (if present) must have no app definitions.

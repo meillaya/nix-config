@@ -533,12 +533,19 @@ EOF
       "clean" = mkApp "clean" system;
     };
   mkDarwinApps = system:
-    {
+    let
+      nhPkg = inputs.nh.packages.${system}.default or null;
+    in {
       "build" = mkApp "build" system;
       "search-pkgs" = mkSearchPkgsApp system;
       "build-switch" = mkApp "build-switch" system;
       "clean" = mkApp "clean" system;
       "update" = mkUpdateApp system;
+    } // lib.optionalAttrs (nhPkg != null) {
+      "nh" = {
+        type = "app";
+        program = "${nhPkg}/bin/nh";
+      };
     };
 in {
   perSystem = { system, ... }: {

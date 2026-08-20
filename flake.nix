@@ -34,6 +34,16 @@
       # Cachix artifacts remain usable.
       url = "github:noctalia-dev/noctalia/cachix";
     };
+    stylix = {
+      url = "github:danth/stylix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    nix-direnv.url = "github:nix-community/nix-direnv";
+    nh = {
+      url = "github:viperML/nh";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+    preservation.url = "github:nix-community/preservation";
     den.url = "github:denful/den/1614f6f8ed435c5bb257408bf91fd662f9aac43e";
     flake-parts = {
       url = "github:hercules-ci/flake-parts";
