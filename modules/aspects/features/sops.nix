@@ -34,7 +34,6 @@
       ];
       sops.age.sshKeyPaths = [
         "${host.machine.identity.home}/.ssh/id_ed25519"
-        "${host.machine.identity.home}/.ssh/id_ed25519_agenix"
       ];
       environment.systemPackages = [ pkgs.sops ];
       sops.secrets."OPENAI_API_KEY" = {

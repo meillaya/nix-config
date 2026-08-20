@@ -53,6 +53,8 @@ do
 done
 
 # nix-config must NOT contain any NixOS-only aspects (they live in NixOS-config).
+# desktop-media is duplicated because the standalone Home Manager uses its
+# homeManager branch; the NixOS-only branches are stripped from this copy.
 for path in \
   modules/aspects/platforms/linux.nix \
   modules/aspects/roles/workstation-linux.nix \
@@ -72,7 +74,6 @@ for path in \
   modules/aspects/features/bootstrap-password.nix \
   modules/aspects/features/nixos-base.nix \
   modules/aspects/features/niri.nix \
-  modules/aspects/features/desktop-media.nix \
   modules/aspects/features/linux-desktop.nix
 do
   if [[ -e $path ]]; then
@@ -168,14 +169,18 @@ assert "aarch64-darwin" in systems
 assert "x86_64-darwin" not in systems
 PY
 
-grep -Fq 'den.aspects.linux-platform' modules/aspects/platforms/linux.nix
-grep -Fq 'den.aspects.workstation-role-linux' modules/aspects/roles/workstation-linux.nix
-grep -Fq 'den.aspects.pending-x86-workstation-hardware' \
-  modules/aspects/hardware/pending-x86-workstation.nix
-grep -Fq 'den.aspects.nixos-laptop-storage' modules/aspects/storage/nixos-laptop.nix
-grep -Fq 'den.aspects.nixos-laptop' modules/aspects/named-hosts/nixos-laptop.nix
-grep -Fq 'den.aspects.x86_64-linux.includes = [ den.aspects.nixos-laptop ];' \
-  modules/aspects/hosts/nixos-workstation.nix
+# linux-platform aspect lives in NixOS-config (the standalone config wires
+# straight into mei/noctalia/desktop-media).
+# linux role lives in NixOS-config
+# pending-x86-workstation-hardware lives in NixOS-config
+# grep -Fq 'den.aspects.pending-x86-workstation-hardware' \
+#   modules/aspects/hardware/pending-x86-workstation.nix
+# nixos-laptop-storage / nixos-laptop live in NixOS-config
+# grep -Fq 'den.aspects.nixos-laptop-storage' modules/aspects/storage/nixos-laptop.nix
+# grep -Fq 'den.aspects.nixos-laptop' modules/aspects/named-hosts/nixos-laptop.nix
+# x86_64-linux compatibility aspect lives in NixOS-config
+# grep -Fq 'den.aspects.x86_64-linux.includes = [ den.aspects.nixos-laptop ];' \
+#   modules/aspects/hosts/nixos-workstation.nix
 
 if grep -R -Eq '_machine-authority|authority\.getMachine' \
   modules/aspects/named-hosts \
@@ -193,16 +198,18 @@ do
   grep -Fq 'host.machine' "$path"
 done
 
-grep -Fq 'machine.capabilities.values."install.remote".state' \
-  modules/aspects/hardware/x86-vendor-routing.nix
-if grep -Fq 'machine.capabilities.values.install.remote' \
-  modules/aspects/hardware/x86-vendor-routing.nix; then
-  echo 'flat install.remote capability key is accessed as nested attributes' >&2
-  exit 1
-fi
+# x86-vendor-routing lives in NixOS-config
+# grep -Fq 'machine.capabilities.values."install.remote".state' \
+#   modules/aspects/hardware/x86-vendor-routing.nix
+# if grep -Fq 'machine.capabilities.values.install.remote' \
+#   modules/aspects/hardware/x86-vendor-routing.nix; then
+#   echo 'flat install.remote capability key is accessed as nested attributes' >&2
+#   exit 1
+# fi
 
-grep -Fq 'system = "x86_64-linux";' modules/entities/hosts.nix
-grep -Fq 'system = "aarch64-linux";' modules/entities/hosts.nix
+# system= lines for Linux hosts live in NixOS-config/hosts.nix
+# grep -Fq 'system = "x86_64-linux";' modules/entities/hosts.nix
+# grep -Fq 'system = "aarch64-linux";' modules/entities/hosts.nix
 grep -Fq 'home = "/home/mei";' modules/entities/_machine-authority/model.nix
 
 if grep -Eq 'builtins\.getEnv|NIXOS_CONFIG_(USER|HOME)' \

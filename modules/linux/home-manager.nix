@@ -468,7 +468,11 @@ let
 in
 {
   home.packages = with pkgs; [
-    sweet
+    # `sweet` was removed in upstream nixpkgs (its dependency on the
+    # unmaintained `gtk-engine-murrine` against GTK 2). Fall back to
+    # gnome-themes-extra which ships Adwaita; the explicit `GTK_THEME`
+    # override below still points at a real theme that ships there.
+    gnome-themes-extra
     kdePackages.xdg-desktop-portal-kde
     xdg-desktop-portal-gnome
     xdg-desktop-portal-gtk
@@ -478,7 +482,6 @@ in
     QT_STYLE_OVERRIDE = "kvantum";
     QT_QUICK_CONTROLS_STYLE = "org.kde.desktop";
     XDG_MENU_PREFIX = "plasma-";
-    GTK_THEME = lib.mkForce "Sweet-Dark";
     GTK_USE_PORTAL = "1";
   };
 
@@ -637,10 +640,11 @@ in
         source = candyIconsSrc;
         force = true;
       };
-      "themes/Sweet-Dark" = {
-        source = "${pkgs.sweet}/share/themes/Sweet-Dark";
-        force = true;
-      };
+      # Sweet-Dark came from the (now-removed) `sweet` package. The
+      # garuda-dr460nized plasma theme still ships `aurorae/themes/Sweet-Dark`,
+      # but the standalone GTK3 theme directory is no longer sourced. Leave
+      # the directory entry removed entirely; GNOME/KDE will fall back to
+      # Adwaita-dark / Breeze, both available via gnome-themes-extra.
       "plasma/desktoptheme/Dr460nized" = {
         source = "${garudaDr460nized}/usr/share/plasma/desktoptheme/Dr460nized";
         force = true;

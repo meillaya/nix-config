@@ -15,8 +15,8 @@ let
           lib.attrByPath [ "users" "users" primaryUser "home" ] null config;
     in
     if hmHome != null then hmHome else if managedUserHome != null then managedUserHome else "$HOME";
-  # GitHub authentication key (public part only; the private key lives in the
-  # git-ignored secrets/github-ssh-key.age age-encrypted backup).
+  # GitHub authentication key (public part only). The private key lives at
+  # ~/.ssh/id_ed25519 and is rotated manually.
   githubPublicKey = "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIPoWsO0x+p0FKVKOrfHPc0xeZuOZyMapMt8LxPbWHtb5 mei@entropyos-nix";
 in
 {

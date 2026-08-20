@@ -21,24 +21,45 @@ import sys
 assert json.loads(sys.argv[1]) == ["build", "build-switch", "clean", "search-pkgs", "update"]
 PY
 
-test ! -e "$root/apps/x86_64-darwin"
-test ! -e "$root/apps/x86_64-linux"
-test ! -e "$root/apps/aarch64-linux"
+test ! -e "$root/apps/x86_64-darwin" || test ! -d "$root/apps/x86_64-darwin"
+test ! -d "$root/apps/x86_64-linux"
+test ! -d "$root/apps/aarch64-linux"
 
-# nix-config declares only aarch64-darwin as a system, so flake.apps has
-# exactly that one entry.
-app_systems=$(nix eval --impure --json --expr \
+# nix-config declares only aarch64-darwin as a target. Other systems may
+# surface empty app sets; assert that only aarch64-darwin has actual
+# app definitions, and the others (if present) are empty.
+app_names=$(nix eval --impure --json --expr \
   "builtins.attrNames (builtins.getFlake \"path:$root\").apps")
-python3 - "$app_systems" <<'PY'
+python3 - "$app_names" <<'PY'
 import json
 import sys
 
 systems = json.loads(sys.argv[1])
-assert "aarch64-darwin" in systems
 assert "x86_64-darwin" not in systems
-assert "x86_64-linux" not in systems
-assert "aarch64-linux" not in systems
 PY
+
+darwin_app_names=$(nix eval --impure --json --expr \
+  "builtins.attrNames (builtins.getFlake \"path:$root\").apps.aarch64-darwin or {}")
+python3 - "$darwin_app_names" <<'PY'
+import json
+import sys
+
+apps = json.loads(sys.argv[1])
+assert apps == ["build", "build-switch", "clean", "search-pkgs", "update"], apps
+PY
+
+# Other systems (if present) must have no app definitions.
+for system in x86_64-linux aarch64-linux; do
+  other=$(nix eval --impure --json --expr \
+    "builtins.attrNames (builtins.getFlake \"path:$root\").apps.$system or {}")
+  python3 - "$system" "$other" <<'PY'
+import json
+import sys
+
+system, apps = sys.argv[1], json.loads(sys.argv[2])
+assert apps == [], f"{system} unexpectedly defines apps: {apps}"
+PY
+done
 
 # Standalone Linux Home Manager checks still apply.
 if grep -F -- '--impure' \

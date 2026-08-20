@@ -542,6 +542,10 @@ EOF
     };
 in {
   perSystem = { system, ... }: {
-    apps = if system == "aarch64-darwin" then mkDarwinApps system else mkLinuxApps system;
+    # nix-config declares only aarch64-darwin as a target system. Other
+    # systems would only produce empty app sets here, so skip them.
+    apps =
+      if system == "aarch64-darwin" then mkDarwinApps system
+      else { };
   };
 }

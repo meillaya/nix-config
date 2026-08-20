@@ -9,7 +9,7 @@ dock/           Declarative Dock option and activation implementation
 system.nix      User home facts and Dock entries
 user-home.nix   Darwin-specific Home Manager payload
 packages.nix    Darwin package list
-secrets.nix     Darwin agenix settings
+secrets.nix     Darwin sops-nix settings (removed in Phase 1)
 ```
 
 Add machines in `modules/entities/hosts.nix` and attach a thin aggregate aspect;
